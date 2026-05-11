@@ -1,16 +1,19 @@
 export default async function handler(req, res) {
   const { id, vid, trackUrl } = req.query;
 
-  // 1. GÜÇLENDİRİLMİŞ ALTYAZI PROXY'Sİ (CORS ENGELİNİ KIRAR)
+  // 1. ALTYAZI ENGELİNİ AŞAN PROXY
   if (trackUrl) {
       try {
           const trkRes = await fetch(trackUrl, {
               headers: {
-                  "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+                  "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)",
                   "Referer": "https://www.filmmodu.one/"
               }
           });
-          const trkTxt = await trkRes.text();
+          let trkTxt = await trkRes.text();
+          
+          if (!trkTxt.includes('WEBVTT')) trkTxt = "WEBVTT\n\n" + trkTxt;
+          
           res.setHeader('Content-Type', 'text/vtt; charset=utf-8');
           res.setHeader('Access-Control-Allow-Origin', '*');
           return res.status(200).send(trkTxt);
@@ -24,14 +27,17 @@ export default async function handler(req, res) {
   try {
     const pageReq = await fetch(`https://www.filmmodu.one/${id}`, { headers: { "user-agent": "Mozilla/5.0", "referer": "https://www.filmmodu.one/" } });
     const html = await pageReq.text();
+    
     const vId = vid || (html.match(/videoId\s*=\s*'([^']+)'/) || html.match(/data-movie-id="([^"]+)"/) || [])[1];
     const csrf = (html.match(/"csrf-token" content="(.*?)"/) || [])[1];
 
     if (!vId || !csrf) return res.status(500).send("Video engeli veya dil ID'si bulunamadı.");
 
-    const sourceReq = await fetch(`https://www.filmmodu.one/get-source?movie_id=${vId}&type=en`, {
+    // DİKKAT: &type=en parametresini SİLDİK! Artık İngilizceye zorlamayacak.
+    const sourceReq = await fetch(`https://www.filmmodu.one/get-source?movie_id=${vId}`, {
       headers: { "x-csrf-token": csrf, "x-requested-with": "XMLHttpRequest", "referer": `https://www.filmmodu.one/${id}` }
     });
+    
     const data = await sourceReq.json();
     if (!data.sources || data.sources.length === 0) return res.status(404).send("Link bulunamadı.");
     const videoUrl = data.sources[data.sources.length - 1].src;
@@ -40,8 +46,15 @@ export default async function handler(req, res) {
     if (data.tracks) {
         data.tracks.forEach(t => {
             if (t.kind === 'captions' || t.kind === 'subtitles') {
-                const proxyUrl = `/api/play?trackUrl=${encodeURIComponent(t.file)}`;
-                tracks += `<track kind="captions" label="${t.label || 'Türkçe'}" src="${proxyUrl}" srclang="tr" default />\n`;
+                let trackFile = t.file || t.src;
+                // Bağıl (yarım) linkleri tamamlama sistemi eklendi
+                if (trackFile && !trackFile.startsWith('http')) {
+                    trackFile = 'https://www.filmmodu.one' + trackFile;
+                }
+                if (trackFile) {
+                    const proxyUrl = `/api/play?trackUrl=${encodeURIComponent(trackFile)}`;
+                    tracks += `<track kind="captions" label="${t.label || 'Türkçe'}" src="${proxyUrl}" srclang="tr" default />\n`;
+                }
             }
         });
     }
@@ -52,6 +65,7 @@ export default async function handler(req, res) {
     <html lang="tr">
     <head>
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>İnadına TV Player</title>
         <link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css" />
         <style>body { margin:0; background:#000; overflow:hidden; } video { width:100vw; height:100vh; } :root { --plyr-color-main: #e50914; }</style>
     </head>

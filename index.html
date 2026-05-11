@@ -3,35 +3,173 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bedava Film Arşivi</title>
+    <title>İnadına TV - Film Kuşağı</title>
     <style>
-        body { font-family: Arial, sans-serif; background-color: #141414; color: white; margin: 0; padding: 20px; }
-        h1 { text-align: center; color: #e50914; }
-        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 15px; }
-        .card { background: #222; border-radius: 8px; overflow: hidden; text-align: center; text-decoration: none; color: white; }
-        .card img { width: 100%; height: 220px; object-fit: cover; }
-        .card h3 { font-size: 14px; padding: 10px; margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;}
+        :root {
+            --primary: #e50914;
+            --bg: #0f0f0f;
+            --card-bg: #1f1f1f;
+            --text: #ffffff;
+            --shadow: 0 10px 30px rgba(0,0,0,0.8);
+        }
+        body { font-family: 'Segoe UI', Tahoma, sans-serif; background-color: var(--bg); color: var(--text); margin: 0; padding: 0; }
+        
+        /* Header ve Arama Kutusu */
+        header { 
+            padding: 20px; 
+            text-align: center; 
+            background: linear-gradient(to bottom, #1a1a1a, transparent);
+            position: sticky; top: 0; z-index: 100;
+        }
+        h1 { color: var(--primary); text-transform: uppercase; letter-spacing: 2px; margin-bottom: 15px; font-size: 24px; text-shadow: 2px 2px 4px rgba(0,0,0,0.5); }
+        
+        .search-box {
+            width: 90%; max-width: 500px;
+            padding: 12px 20px;
+            border-radius: 25px;
+            border: none;
+            background: var(--card-bg);
+            color: white;
+            outline: none;
+            box-shadow: var(--shadow);
+            font-size: 16px;
+        }
+
+        /* Film Grid Yapısı */
+        .grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); 
+            gap: 15px; 
+            padding: 20px;
+            max-width: 1200px; margin: 0 auto;
+        }
+        .card { 
+            background: var(--card-bg); 
+            border-radius: 12px; 
+            overflow: hidden; 
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            position: relative;
+        }
+        .card:hover { transform: scale(1.05); box-shadow: var(--shadow); }
+        .card img { width: 100%; height: 210px; object-fit: cover; }
+        .card h3 { font-size: 13px; padding: 8px; margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-align: center; }
+
+        /* Detay Modal (Penceresi) */
+        .modal {
+            display: none;
+            position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%;
+            background-color: rgba(0,0,0,0.9);
+            backdrop-filter: blur(5px);
+        }
+        .modal-content {
+            background: var(--card-bg);
+            margin: 10% auto; padding: 25px;
+            width: 85%; max-width: 400px;
+            border-radius: 20px;
+            text-align: center;
+            box-shadow: var(--shadow);
+            animation: slideUp 0.4s ease;
+        }
+        @keyframes slideUp { from { transform: translateY(50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+        .btn-group { display: flex; flex-direction: column; gap: 10px; margin-top: 20px; }
+        .play-btn {
+            background: var(--primary); color: white; padding: 12px;
+            text-decoration: none; border-radius: 10px; font-weight: bold;
+            transition: 0.2s;
+        }
+        .play-btn:hover { filter: brightness(1.2); }
+        .close-btn { color: #aaa; cursor: pointer; float: right; font-size: 28px; font-weight: bold; }
+
+        @media (max-width: 600px) { .grid { grid-template-columns: repeat(2, 1fr); } }
     </style>
 </head>
 <body>
-    <h1>🎬 Film Arşivi</h1>
-    <div class="grid" id="movieGrid">Yükleniyor...</div>
 
-    <script>
-        async function getir() {
+<header>
+    <h1>🎬 İNADINA TV FİLM KUŞAĞI</h1>
+    <input type="text" id="searchInput" class="search-box" placeholder="Film ara..." onkeyup="filterMovies()">
+</header>
+
+<div class="grid" id="movieGrid">Yükleniyor...</div>
+
+<div id="movieModal" class="modal">
+    <div class="modal-content">
+        <span class="close-btn" onclick="closeModal()">&times;</span>
+        <img id="modalImg" src="" style="width: 150px; border-radius: 10px; margin-bottom: 15px;">
+        <h2 id="modalTitle" style="font-size: 18px;">Film Adı</h2>
+        <p style="font-size: 14px; color: #ccc;">Lütfen izlemek istediğiniz dil seçeneğini belirleyin:</p>
+        
+        <div class="btn-group">
+            <a id="dublajLink" href="#" target="_blank" class="play-btn">🇹🇷 Türkçe Dublaj İzle</a>
+            <a id="altyaziLink" href="#" target="_blank" class="play-btn" style="background: #333;">💬 Türkçe Altyazılı İzle</a>
+        </div>
+    </div>
+</div>
+
+<script>
+    let allMovies = [];
+
+    // Verileri Getir
+    async function fetchMovies() {
+        try {
             const res = await fetch('movies.json');
-            const filmler = await res.json();
-            const grid = document.getElementById('movieGrid');
-            grid.innerHTML = "";
-            filmler.forEach(film => {
-                grid.innerHTML += `
-                    <a href="/api/play?id=${film.id}" target="_blank" class="card">
-                        <img src="${film.image}" alt="Afiş">
-                        <h3>${film.title}</h3>
-                    </a>`;
-            });
+            allMovies = await res.json();
+            displayMovies(allMovies);
+        } catch (e) {
+            document.getElementById('movieGrid').innerHTML = "Film listesi henüz hazır değil.";
         }
-        getir();
-    </script>
+    }
+
+    // Filmleri Listele
+    function displayMovies(movies) {
+        const grid = document.getElementById('movieGrid');
+        grid.innerHTML = "";
+        movies.forEach(film => {
+            const card = document.createElement('div');
+            card.className = 'card';
+            card.onclick = () => openModal(film);
+            card.innerHTML = `
+                <img src="${film.image}" alt="${film.title}" loading="lazy">
+                <h3>${film.title}</h3>
+            `;
+            grid.appendChild(card);
+        });
+    }
+
+    // Arama Fonksiyonu
+    function filterMovies() {
+        const term = document.getElementById('searchInput').value.toLowerCase();
+        const filtered = allMovies.filter(f => f.title.toLowerCase().includes(term));
+        displayMovies(filtered);
+    }
+
+    // Modal Aç/Kapat
+    function openModal(film) {
+        document.getElementById('modalTitle').innerText = film.title;
+        document.getElementById('modalImg').src = film.image;
+        
+        // Vercel API linkini oluşturuyoruz
+        const playUrl = `/api/play?id=${film.id}`;
+        
+        document.getElementById('dublajLink').href = playUrl;
+        document.getElementById('altyaziLink').href = playUrl; // Şimdilik ikisi de aynı yere gider
+        
+        document.getElementById('movieModal').style.display = "block";
+    }
+
+    function closeModal() {
+        document.getElementById('movieModal').style.display = "none";
+    }
+
+    // Modal dışına tıklanırsa kapat
+    window.onclick = function(event) {
+        if (event.target == document.getElementById('movieModal')) closeModal();
+    }
+
+    fetchMovies();
+</script>
 </body>
 </html>

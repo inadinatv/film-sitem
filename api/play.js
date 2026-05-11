@@ -1,14 +1,11 @@
 export default async function handler(req, res) {
-  const { id, vid, trackUrl } = req.query;
+  const { id, vid, lang, trackUrl } = req.query;
 
   // 1. ALTYAZI PROXY SİSTEMİ
   if (trackUrl) {
       try {
           const trkRes = await fetch(trackUrl, {
-              headers: {
-                  "User-Agent": "Mozilla/5.0 (Web0S; Linux/SmartTV)",
-                  "Referer": "https://www.filmmodu.one/"
-              }
+              headers: { "User-Agent": "Mozilla/5.0 (Web0S; Linux/SmartTV)", "Referer": "https://www.filmmodu.one/" }
           });
           let trkTxt = await trkRes.text();
           res.setHeader('Content-Type', 'text/vtt; charset=utf-8');
@@ -20,52 +17,46 @@ export default async function handler(req, res) {
   if (!id) return res.status(400).send("Film ID eksik.");
 
   try {
-    // CLOUDFLARE ENGELİNİ AŞAN SİHİRLİ KİMLİK
     const ua = "Mozilla/5.0 (Web0S; Linux/SmartTV)"; 
-    
-    const pageReq = await fetch(`https://www.filmmodu.one/${id}`, {
-      headers: { "user-agent": ua, "referer": "https://www.filmmodu.one/" }
-    });
-    
+    const pageReq = await fetch(`https://www.filmmodu.one/${id}`, { headers: { "user-agent": ua, "referer": "https://www.filmmodu.one/" } });
     const html = await pageReq.text();
+    
     const vId = vid || (html.match(/videoId\s*=\s*'([^']+)'/) || html.match(/data-movie-id="([^"]+)"/) || [])[1];
     const csrf = (html.match(/"csrf-token" content="(.*?)"/) || [])[1];
 
     if (!vId || !csrf) return res.status(500).send("Video ID veya Token bulunamadı. Sayfayı yenileyin.");
 
-    // 2. AKILLI DİL VE LİNK BULUCU (Önce Türkçe, Sonra İngilizce Dener)
+    // 2. SENİN MANTIĞIN: ÖNCELİKLİ DİL VE YEDEK DİL
+    // Butondan 'en' geldiyse önce 'en' sonra 'tr' dener. 'tr' geldiyse önce 'tr' sonra 'en' dener.
+    const targetLang = lang === 'en' ? 'en' : 'tr';
+    const fallbackLang = targetLang === 'tr' ? 'en' : 'tr';
+    const typesToTry = [targetLang, fallbackLang, '']; 
+    
     let data = null;
-    const typesToTry = ['tr', 'en', '']; 
     
     for (let t of typesToTry) {
         let url = `https://www.filmmodu.one/get-source?movie_id=${vId}`;
         if (t) url += `&type=${t}`;
         
         const sourceReq = await fetch(url, {
-          headers: {
-            "x-csrf-token": csrf,
-            "x-requested-with": "XMLHttpRequest",
-            "user-agent": ua,
-            "referer": `https://www.filmmodu.one/${id}`
-          }
+          headers: { "x-csrf-token": csrf, "x-requested-with": "XMLHttpRequest", "user-agent": ua, "referer": `https://www.filmmodu.one/${id}` }
         });
         
         try {
             const tempData = await sourceReq.json();
             if (tempData.sources && tempData.sources.length > 0) {
                 data = tempData;
-                break; // Linki bulduğu an aramayı durdurur ve videoyu çeker!
+                break; // Videoyu kopardığı an durur!
             }
-        } catch(e) { /* Hata olursa sıradaki dile geçer */ }
+        } catch(e) { /* Hata olursa diğer dile geçer */ }
     }
 
     if (!data || !data.sources || data.sources.length === 0) {
-        return res.status(404).send("Sunucu kaynak vermedi. Site koruması geçici olarak engellemiş olabilir.");
+        return res.status(404).send("Sunucu kaynak vermedi. Site koruması engellemiş olabilir.");
     }
     
     const videoUrl = data.sources[data.sources.length - 1].src;
 
-    // 3. ALTYAZILARI VİDEOYA GÖMME
     let tracks = "";
     if (data.tracks) {
       data.tracks.forEach(t => {
@@ -78,7 +69,6 @@ export default async function handler(req, res) {
       });
     }
 
-    // 4. OYNATICIYI (PLAYER) EKRANA ÇİZME
     res.setHeader('Content-Type', 'text/html; charset=utf-8');
     res.send(`
     <!DOCTYPE html>

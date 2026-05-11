@@ -6,24 +6,41 @@ export default async function handler(req, res) {
     });
     const html = await pageReq.text();
 
-    // Özet çekme
     const desc = (html.match(/<meta property="og:description" content="([^"]+)"/) || ["", "Açıklama bulunamadı."])[1];
 
-    // Dublaj ve Altyazı butonlarını ID'leri ile yakalama
     let languages = [];
-    const btnRegex = /<[^>]+data-(?:movie-id|id)="([^"]+)"[^>]*>(.*?)<\/[^>]+>/gi;
+    
+    // 1. Link (SEO) tabanlı dil butonları
+    const linkRegex = /<a[^>]+href="([^"]+)"[^>]*>(.*?)<\/a>/gi;
     let match;
+    while ((match = linkRegex.exec(html)) !== null) {
+        const href = match[1];
+        const text = match[2].trim().replace(/(<([^>]+)>)/gi, "");
+        const tLower = text.toLowerCase();
+        
+        // Sadece buton olanları alır, kategori linklerine atlamaz
+        if (tLower.length < 25 && (tLower.includes("dublaj") || tLower.includes("altyaz")) && !tLower.includes("fragman")) {
+            let slug = href.split('/').pop();
+            if (slug && !languages.find(l => l.name === text)) {
+                languages.push({ url: `/api/play?id=${slug}`, name: text });
+            }
+        }
+    }
+
+    // 2. Ajax tabanlı dil butonları
+    const btnRegex = /<[^>]+data-(?:movie-id|id)="([^"]+)"[^>]*>(.*?)<\/[^>]+>/gi;
     while ((match = btnRegex.exec(html)) !== null) {
         const vId = match[1];
-        const label = match[2].trim().replace(/(<([^>]+)>)/gi, "");
-        if (label.toLowerCase().includes("dublaj") || label.toLowerCase().includes("altyaz")) {
-            if(!languages.find(l => l.vId === vId)) languages.push({ vId, name: label });
+        const text = match[2].trim().replace(/(<([^>]+)>)/gi, "");
+        if (text.length < 25 && (text.toLowerCase().includes("dublaj") || text.toLowerCase().includes("altyaz")) && !text.toLowerCase().includes("fragman")) {
+            if(!languages.find(l => l.name === text)) {
+                languages.push({ url: `/api/play?id=${id}&vid=${vId}`, name: text });
+            }
         }
     }
 
     if(languages.length === 0) {
-        const defId = (html.match(/videoId\s*=\s*'([^']+)'/) || html.match(/data-movie-id="([^"]+)"/) || [])[1];
-        if(defId) languages.push({ vId: defId, name: "Filmi İzle" });
+        languages.push({ url: `/api/play?id=${id}`, name: "FİLMİ İZLE" });
     }
 
     res.status(200).json({ desc, languages });

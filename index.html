@@ -5,35 +5,203 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>İnadına TV - Film Kuşağı</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;700&display=swap" rel="stylesheet">
     <style>
         :root { --primary: #e50914; --bg: #0b0b0b; --card-bg: #1a1a1a; --text: #ffffff; }
-        body { font-family: sans-serif; background: var(--bg); color: var(--text); margin: 0; overflow-x: hidden; }
-        header { padding: 15px 5%; display: flex; align-items: center; justify-content: space-between; background: #111; position: sticky; top: 0; z-index: 1000; box-shadow: 0 4px 15px #000; }
-        .logo { color: var(--primary); font-weight: 800; font-size: 20px; text-decoration: none; }
-        .search-box { flex: 1; margin: 0 15px; padding: 10px 15px; border-radius: 20px; border: none; background: #222; color: white; outline: none; }
+        
+        body { 
+            font-family: 'Poppins', sans-serif; 
+            background: var(--bg); 
+            color: var(--text); 
+            margin: 0; 
+            overflow-x: hidden; 
+        }
+
+        /* Üst Menü / Header */
+        header { 
+            padding: 15px 5%; 
+            display: flex; 
+            align-items: center; 
+            justify-content: space-between; 
+            background: rgba(17,17,17,0.95); 
+            position: sticky; 
+            top: 0; 
+            z-index: 1000; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.8); 
+        }
+
+        .logo { color: var(--primary); font-weight: 700; font-size: 20px; text-decoration: none; }
+
+        .search-box { 
+            flex: 1; 
+            margin: 0 15px; 
+            padding: 10px 15px; 
+            border-radius: 20px; 
+            border: none; 
+            background: #222; 
+            color: white; 
+            outline: none; 
+        }
+
         .menu-btn { font-size: 24px; cursor: pointer; color: white; }
-        .sidebar { position: fixed; right: -280px; top: 0; width: 250px; height: 100%; background: #111; transition: 0.3s; z-index: 2000; padding: 20px; box-shadow: -5px 0 20px #000; overflow-y: auto; }
+
+        /* Yan Menü (Kategoriler) */
+        .sidebar { 
+            position: fixed; 
+            right: -280px; 
+            top: 0; 
+            width: 250px; 
+            height: 100%; 
+            background: #111; 
+            transition: 0.3s; 
+            z-index: 2000; 
+            padding: 20px; 
+            box-shadow: -5px 0 20px rgba(0,0,0,0.8); 
+            overflow-y: auto; 
+        }
+
         .sidebar.active { right: 0; }
-        .cat-item { display: block; padding: 12px; color: #ccc; text-decoration: none; border-radius: 8px; margin-bottom: 5px; }
+
+        .cat-item { 
+            display: block; 
+            padding: 12px; 
+            color: #ccc; 
+            text-decoration: none; 
+            border-radius: 8px; 
+            margin-bottom: 5px; 
+            font-size: 14px;
+        }
+
         .cat-item:hover, .cat-item.active { background: var(--primary); color: white; }
-        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 10px; padding: 15px; }
-        .card { background: var(--card-bg); border-radius: 10px; overflow: hidden; cursor: pointer; position: relative; }
-        .card img { width: 100%; height: 200px; object-fit: cover; }
-        .card h3 { font-size: 12px; padding: 10px; margin: 0; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .card .badge { position: absolute; top: 8px; left: 8px; background: rgba(0,0,0,0.8); padding: 4px 8px; border-radius: 5px; font-size: 10px; font-weight: bold; }
-        .load-more { display: block; margin: 20px auto 40px; padding: 12px 30px; background: var(--primary); color: white; border: none; border-radius: 25px; cursor: pointer; font-weight: bold; }
+
+        /* Film Tablosu (Grid) */
+        .grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); 
+            gap: 15px; 
+            padding: 20px 5%; 
+        }
+
+        .card { 
+            background: var(--card-bg); 
+            border-radius: 10px; 
+            overflow: hidden; 
+            cursor: pointer; 
+            position: relative; 
+            transition: 0.3s;
+        }
+
+        .card:hover { transform: scale(1.03); }
+        .card img { width: 100%; height: 210px; object-fit: cover; }
+        .card h3 { font-size: 13px; padding: 10px; margin: 0; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         
-        /* MOBİL UYUMLU TAŞMAYAN MODAL (SCROLL) */
-        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.92); z-index: 3000; align-items: center; justify-content: center; padding: 15px; }
-        .modal-content { background: #181818; padding: 25px 20px; border-radius: 20px; max-width: 450px; width: 100%; text-align: center; position: relative; max-height: 85vh; display: flex; flex-direction: column; }
-        .close-modal { position: absolute; top: 15px; right: 20px; font-size: 30px; cursor: pointer; color: #888; }
-        #mImg { width: 110px; border-radius: 10px; margin: 0 auto 10px; border: 2px solid var(--primary); }
-        #mTitle { font-size: 18px; margin: 0 0 5px 0; }
+        .badge { 
+            position: absolute; 
+            top: 8px; 
+            left: 8px; 
+            background: rgba(0,0,0,0.8); 
+            padding: 4px 8px; 
+            border-radius: 5px; 
+            font-size: 10px; 
+            font-weight: bold; 
+            color: var(--primary);
+        }
+
+        .load-more { 
+            display: block; 
+            margin: 20px auto 40px; 
+            padding: 12px 30px; 
+            background: var(--primary); 
+            color: white; 
+            border: none; 
+            border-radius: 25px; 
+            cursor: pointer; 
+            font-weight: bold; 
+        }
+
+        /* MODAL (DETAY PENCERESİ) - MOBİL UYUMLU */
+        .modal { 
+            display: none; 
+            position: fixed; 
+            inset: 0; 
+            background: rgba(0,0,0,0.92); 
+            z-index: 3000; 
+            align-items: center; 
+            justify-content: center; 
+            padding: 15px; 
+        }
+
+        .modal-content { 
+            background: #181818; 
+            padding: 25px 20px; 
+            border-radius: 20px; 
+            max-width: 450px; 
+            width: 100%; 
+            text-align: center; 
+            position: relative; 
+            max-height: 90vh; 
+            display: flex; 
+            flex-direction: column; 
+        }
+
+        .close-modal { 
+            position: absolute; 
+            top: 15px; 
+            right: 20px; 
+            font-size: 30px; 
+            cursor: pointer; 
+            color: #888; 
+        }
+
+        #mImg { width: 110px; border-radius: 10px; margin: 0 auto 15px; box-shadow: 0 0 15px var(--primary); }
         
-        /* Kaydırma Çubukları Eklendi */
-        #mDesc { font-size: 13px; color: #ccc; background: rgba(0,0,0,0.4); padding: 10px; border-radius: 8px; max-height: 100px; overflow-y: auto; text-align: justify; margin-bottom: 15px; }
-        .lang-group { display: flex; flex-direction: column; gap: 8px; overflow-y: auto; max-height: 140px; padding-right: 5px; }
-        .play-btn { background: var(--primary); color: white; padding: 12px; text-decoration: none; border-radius: 8px; font-weight: bold; font-size: 14px; }
+        /* Açıklama Kutusu (Taşmayı önleyen scroll) */
+        #mDesc { 
+            font-size: 13px; 
+            color: #ddd; 
+            background: rgba(0,0,0,0.4); 
+            padding: 12px; 
+            border-radius: 8px; 
+            max-height: 100px; 
+            overflow-y: auto; 
+            text-align: left; 
+            line-height: 1.5; 
+            margin-bottom: 15px; 
+            border: 1px solid #333; 
+        }
+
+        /* Dil Butonları (Scroll eklendi) */
+        .lang-group { 
+            display: flex; 
+            flex-direction: column; 
+            gap: 10px; 
+            overflow-y: auto; 
+            max-height: 150px; 
+            padding-right: 5px; 
+        }
+
+        .play-btn { 
+            background: var(--primary); 
+            color: white; 
+            padding: 12px; 
+            text-decoration: none; 
+            border-radius: 10px; 
+            font-weight: bold; 
+            font-size: 14px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            gap: 8px;
+        }
+
+        /* Scrollbar Tasarımı (Kutular için) */
+        #mDesc::-webkit-scrollbar, .lang-group::-webkit-scrollbar { width: 5px; }
+        #mDesc::-webkit-scrollbar-thumb, .lang-group::-webkit-scrollbar-thumb { background: #444; border-radius: 10px; }
+
+        @media (max-width: 600px) {
+            .grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+            #mTitle { font-size: 18px; }
+        }
     </style>
 </head>
 <body>
@@ -46,7 +214,7 @@
 
 <div class="sidebar" id="sidebar">
     <div style="text-align: right; font-size: 28px; cursor: pointer; margin-bottom: 10px;" onclick="toggle()">&times;</div>
-    <h2 style="border-bottom: 2px solid var(--primary); padding-bottom: 10px;">Kategoriler</h2>
+    <h2 style="border-bottom: 2px solid var(--primary); padding-bottom: 10px; font-size: 18px;">Kategoriler</h2>
     <div id="catList"></div>
 </div>
 
@@ -57,7 +225,7 @@
     <div class="modal-content">
         <span class="close-modal" onclick="closeModal()">&times;</span>
         <img id="mImg" src="">
-        <h2 id="mTitle"></h2>
+        <h2 id="mTitle" style="margin: 0 0 10px 0;"></h2>
         <div id="mInfo" style="color: var(--primary); font-size: 12px; font-weight: bold; margin-bottom: 10px;"></div>
         <div id="mDesc"></div>
         <div id="langButtons" class="lang-group"></div>
@@ -67,15 +235,20 @@
 <script>
     let all = [], filtered = [], limit = 20, activeCat = "Tümü";
 
+    // 1. Verileri Başlat
     async function init() {
         try {
             const res = await fetch('movies.json');
             all = await res.json();
             filtered = all;
-            renderCats(); render();
-        } catch(e) { document.getElementById('movieGrid').innerHTML = "Veriler yüklenemedi."; }
+            renderCats(); 
+            render();
+        } catch(e) { 
+            document.getElementById('movieGrid').innerHTML = "<p style='text-align:center; width:100%'>Lütfen botu çalıştırıp verileri çekin.</p>"; 
+        }
     }
 
+    // 2. Kategorileri Menüye Diz
     function renderCats() {
         const cats = ["Tümü", ...new Set(all.map(m => m.category).filter(Boolean))];
         document.getElementById('catList').innerHTML = cats.map(c => 
@@ -83,9 +256,11 @@
         ).join("");
     }
 
+    // 3. Filmleri Ekrana Çiz
     function render() {
         const grid = document.getElementById('movieGrid');
-        grid.innerHTML = filtered.slice(0, limit).map(f => `
+        const items = filtered.slice(0, limit);
+        grid.innerHTML = items.map(f => `
             <div class="card" onclick="openModal('${f.id}', '${f.title.replace(/'/g, "\\'")}', '${f.image}', '${f.year}', '${f.category}')">
                 <span class="badge">${f.category}</span>
                 <img src="${f.image}" loading="lazy">
@@ -95,36 +270,47 @@
         document.getElementById('loadMoreBtn').style.display = limit >= filtered.length ? 'none' : 'block';
     }
 
+    // 4. Fonksiyonlar
     function loadMore() { limit += 20; render(); }
     function setCat(c) { activeCat = c; filter(); toggle(); renderCats(); }
     function toggle() { document.getElementById('sidebar').classList.toggle('active'); }
 
     function filter() {
         const term = document.getElementById('searchInput').value.toLowerCase();
-        filtered = all.filter(m => (activeCat === "Tümü" || m.category === activeCat) && m.title.toLowerCase().includes(term));
-        limit = 20; render();
+        filtered = all.filter(m => 
+            (activeCat === "Tümü" || m.category === activeCat) && 
+            m.title.toLowerCase().includes(term)
+        );
+        limit = 20; 
+        render();
     }
 
+    // 5. Detay Penceresini Aç (Dinamik Bilgi Çekme)
     async function openModal(id, title, img, year, cat) {
         document.getElementById('mTitle').innerText = title;
         document.getElementById('mImg').src = img;
         document.getElementById('mInfo').innerText = `${year} • ${cat}`;
-        document.getElementById('mDesc').innerHTML = '<i class="fas fa-spinner fa-spin"></i> Bilgiler aranıyor...';
+        document.getElementById('mDesc').innerHTML = '<i class="fas fa-spinner fa-spin"></i> Bilgiler ve dil seçenekleri aranıyor...';
         document.getElementById('langButtons').innerHTML = "";
         document.getElementById('movieModal').style.display = 'flex';
 
         try {
             const res = await fetch(`/api/info?id=${id}`);
             const data = await res.json();
-            document.getElementById('mDesc').innerText = data.desc || "Açıklama bulunamadı.";
+            document.getElementById('mDesc').innerText = data.desc || "Film açıklaması bulunamadı.";
             
+            const btnBox = document.getElementById('langButtons');
             if(data.languages && data.languages.length > 0) {
                 data.languages.forEach(l => {
                     let icon = l.name.toLowerCase().includes('altyaz') ? 'fa-comment-dots' : 'fa-microphone-alt';
-                    document.getElementById('langButtons').innerHTML += `<a href="${l.url}" target="_blank" class="play-btn"><i class="fas ${icon}"></i> ${l.name.toUpperCase()}</a>`;
+                    btnBox.innerHTML += `<a href="${l.url}" target="_blank" class="play-btn"><i class="fas ${icon}"></i> ${l.name.toUpperCase()}</a>`;
                 });
+            } else {
+                btnBox.innerHTML = `<a href="/api/play?id=${id}" target="_blank" class="play-btn"><i class="fas fa-play"></i> FİLMİ OYNAT</a>`;
             }
-        } catch(e) { document.getElementById('mDesc').innerText = "Bağlantı hatası."; }
+        } catch(e) { 
+            document.getElementById('mDesc').innerText = "Bağlantı hatası: Detaylar alınamadı."; 
+        }
     }
 
     function closeModal() { document.getElementById('movieModal').style.display = 'none'; }

@@ -2,106 +2,829 @@
     {
         "id": "akira-film-izle",
         "title": "Akira",
-        "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/14841\/thumb_akira.jpg"
+        "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/14841\/thumb_akira.jpg",
+        "category": "Aksiyon"
     },
     {
         "id": "appleseed-film-izle",
         "title": "Appurushido",
-        "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/14840\/thumb_appleseed.jpg"
+        "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/14840\/thumb_appleseed.jpg",
+        "category": "Aksiyon"
     },
     {
         "id": "kgf-chapter-1-film-izle",
         "title": "K.G.F : Bölüm 1",
-        "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/14835\/thumb_kgf-chapter-1.jpg"
+        "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/14835\/thumb_kgf-chapter-1.jpg",
+        "category": "Aksiyon"
     },
     {
         "id": "the-chronicles-of-riddick-dark-fury-film-izle",
         "title": "Riddick: Korkunç Öfke",
-        "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/14821\/thumb_the-chronicles-of-riddick-dark-fury.jpg"
+        "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/14821\/thumb_the-chronicles-of-riddick-dark-fury.jpg",
+        "category": "Aksiyon"
     },
     {
         "id": "dhoom-3-film-izle",
         "title": "Dhoom 3",
-        "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/14815\/thumb_dhoom-3.jpg"
+        "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/14815\/thumb_dhoom-3.jpg",
+        "category": "Aksiyon"
     },
     {
         "id": "troll-2-film-izle",
         "title": "Esrarengiz Canavar 2",
-        "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/14808\/thumb_troll-2.jpg"
+        "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/14808\/thumb_troll-2.jpg",
+        "category": "Aksiyon"
     },
     {
         "id": "nobody-2-film-izle",
         "title": "Önemsiz Biri 2",
-        "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/14801\/thumb_nobody-2.jpg"
+        "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/14801\/thumb_nobody-2.jpg",
+        "category": "Aksiyon"
     },
     {
         "id": "the-bad-guys-2-film-izle",
         "title": "Kim Demiş Kötüyüz Diye? 2",
-        "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/14780\/thumb_the-bad-guys-2.jpg"
+        "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/14780\/thumb_the-bad-guys-2.jpg",
+        "category": "Aksiyon"
     },
     {
         "id": "beast-of-war-film-izle",
         "title": "Savaş Canavarı",
-        "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/14762\/thumb_beast-of-war.jpg"
+        "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/14762\/thumb_beast-of-war.jpg",
+        "category": "Aksiyon"
     },
     {
         "id": "herd-film-izle",
         "title": "Zombi İstilası",
-        "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/14750\/thumb_herd.jpg"
+        "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/14750\/thumb_herd.jpg",
+        "category": "Aksiyon"
     },
     {
         "id": "one-battle-after-another-film-izle",
         "title": "Savaş Üstüne Savaş",
-        "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/14703\/thumb_one-battle-after-another.jpg"
+        "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/14703\/thumb_one-battle-after-another.jpg",
+        "category": "Aksiyon"
     },
     {
         "id": "bernard-mission-mars-film-izle",
         "title": "Süper Ajan Bernard: Görev Mars",
-        "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/14659\/thumb_bernard-mission-mars.jpg"
+        "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/14659\/thumb_bernard-mission-mars.jpg",
+        "category": "Aksiyon"
     },
     {
         "id": "jaat-film-izle",
         "title": "Jaat",
-        "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/14648\/thumb_jaat.jpg"
+        "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/14648\/thumb_jaat.jpg",
+        "category": "Aksiyon"
     },
     {
         "id": "karate-kid-legends-film-izle",
         "title": "Karate Kid: Efsane Dövüşçüler",
-        "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/14597\/thumb_karate-kid-legends.jpg"
+        "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/14597\/thumb_karate-kid-legends.jpg",
+        "category": "Aksiyon"
     },
     {
         "id": "the-rats-a-witcher-tale-film-izle",
         "title": "Fareler: Bir Witcher Hikâyesi",
-        "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/14593\/thumb_the-rats-a-witcher-tale.jpg"
+        "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/14593\/thumb_the-rats-a-witcher-tale.jpg",
+        "category": "Aksiyon"
     },
     {
         "id": "good-news-film-izle",
         "title": "Uçuş Harekâtı",
-        "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/14570\/thumb_good-news.jpg"
+        "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/14570\/thumb_good-news.jpg",
+        "category": "Aksiyon"
     },
     {
         "id": "star-trek-section-31-film-izle",
         "title": "Star Trek: Birim 31",
-        "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/14564\/thumb_star-trek-section-31.jpg"
+        "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/14564\/thumb_star-trek-section-31.jpg",
+        "category": "Aksiyon"
     },
     {
         "id": "panda-plan-film-izle",
         "title": "Panda Planı",
-        "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/14542\/thumb_panda-plan.jpg"
+        "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/14542\/thumb_panda-plan.jpg",
+        "category": "Aksiyon"
     },
     {
         "id": "a-line-of-fire-film-izle",
         "title": "Ateş Hattı",
-        "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/14538\/thumb_a-line-of-fire.jpg"
+        "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/14538\/thumb_a-line-of-fire.jpg",
+        "category": "Aksiyon"
     },
     {
         "id": "the-fantastic-four-first-steps-film-izle",
         "title": "Fantastik Dörtlü: İlk Adımlar",
-        "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/14534\/thumb_the-fantastic-four-first-steps.jpg"
+        "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/14534\/thumb_the-fantastic-four-first-steps.jpg",
+        "category": "Aksiyon"
     },
     {
         "id": "mantis-film-izle",
         "title": "Mantis",
-        "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/14532\/thumb_mantis.jpg"
+        "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/14532\/thumb_mantis.jpg",
+        "category": "Aksiyon"
+    },
+    {
+        "id": "the-phoenician-scheme-film-izle",
+        "title": "Fenike Planı",
+        "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/14526\/thumb_the-phoenician-scheme.jpg",
+        "category": "Aksiyon"
+    },
+    {
+        "id": "cold-blooded-love-film-izle",
+        "title": "Kurye",
+        "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/14513\/thumb_cold-blooded-love.jpg",
+        "category": "Aksiyon"
+    },
+    {
+        "id": "freaky-tales-film-izle",
+        "title": "Tuhaf Hikâyeler",
+        "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/14506\/thumb_freaky-tales.jpg",
+        "category": "Aksiyon"
+    },
+    {
+        "id": "the-naked-gun-film-izle",
+        "title": "Çıplak Silah",
+        "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/14484\/thumb_the-naked-gun.jpg",
+        "category": "Aksiyon"
+    },
+    {
+        "id": "canary-black-film-izle",
+        "title": "Siyah Kanarya",
+        "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/14474\/thumb_canary-black.jpg",
+        "category": "Aksiyon"
+    },
+    {
+        "id": "ice-road-vengeance-film-izle",
+        "title": "Buz Yolu: İntikam",
+        "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/14472\/thumb_ice-road-vengeance.jpg",
+        "category": "Aksiyon"
+    },
+    {
+        "id": "the-tomorrow-war-film-izle",
+        "title": "Yarının Savaşı",
+        "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/14471\/thumb_the-tomorrow-war.jpg",
+        "category": "Aksiyon"
+    },
+    {
+        "id": "creed-iii-2023-film-izle",
+        "title": "Creed III: Efsane Devam Ediyor",
+        "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/14460\/thumb_creed-iii-2023.jpg",
+        "category": "Aksiyon"
+    },
+    {
+        "id": "creed-3-film-izle",
+        "title": "Creed 3: Efsane Devam Ediyor",
+        "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/14459\/thumb_creed-3.jpg",
+        "category": "Aksiyon"
+    },
+    {
+        "id": "gold-rush-gang-film-izle",
+        "title": "Altına Hücum Çetesi",
+        "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/14435\/thumb_gold-rush-gang.jpg",
+        "category": "Aksiyon"
+    },
+    {
+        "id": "f1-the-movie-film-izle",
+        "title": "F1 Filmi",
+        "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/14417\/thumb_f1-the-movie.jpg",
+        "category": "Aksiyon"
+    },
+    {
+        "id": "wake-up-film-izle",
+        "title": "Gece Kasabı",
+        "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/14413\/thumb_wake-up.jpg",
+        "category": "Aksiyon"
+    },
+    {
+        "id": "ip-man-the-final-fight-film-izle",
+        "title": "Ip Man: Son Dövüş",
+        "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/14399\/thumb_ip-man-the-final-fight.jpg",
+        "category": "Aksiyon"
+    },
+    {
+        "id": "mission-impossible-the-final-reckoning-film-izle",
+        "title": "Görevimiz Tehlike - Son Hesaplaşma",
+        "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/14373\/thumb_mission-impossible-the-final-reckoning.jpg",
+        "category": "Aksiyon"
+    },
+    {
+        "id": "jurassic-world-rebirth-film-izle",
+        "title": "Jurassic World: Yeniden Doğuş",
+        "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/14370\/thumb_jurassic-world-rebirth.jpg",
+        "category": "Aksiyon"
+    },
+    {
+        "id": "how-to-train-your-dragon-2025-film-izle",
+        "title": "Ejderhanı Nasıl Eğitirsin",
+        "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/14368\/thumb_how-to-train-your-dragon-2025.jpg",
+        "category": "Aksiyon"
+    },
+    {
+        "id": "jimmy-neutron-boy-genius-film-izle",
+        "title": "Jimmy Neutron: Dahi Çocuk",
+        "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/14355\/thumb_jimmy-neutron-boy-genius.jpg",
+        "category": "Aksiyon"
+    },
+    {
+        "id": "the-conjuring-last-rites-film-izle",
+        "title": "Korku Seansı 4: Son Ayin",
+        "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/14754\/thumb_the-conjuring-last-rites.jpg",
+        "category": "Gerilim"
+    },
+    {
+        "id": "after-the-hunt-film-izle",
+        "title": "Avın Ardından",
+        "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/14752\/thumb_after-the-hunt.jpg",
+        "category": "Gerilim"
+    },
+    {
+        "id": "the-carman-family-deaths-film-izle",
+        "title": "Carman Ailesinin Gizemi",
+        "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/14747\/thumb_the-carman-family-deaths.jpg",
+        "category": "Gerilim"
+    },
+    {
+        "id": "lucky-baskhar-film-izle",
+        "title": "Şanslı Baskhar",
+        "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/14679\/thumb_lucky-baskhar.jpg",
+        "category": "Gerilim"
+    },
+    {
+        "id": "maareesan-film-izle",
+        "title": "Dalavereci",
+        "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/14671\/thumb_maareesan.jpg",
+        "category": "Gerilim"
+    },
+    {
+        "id": "baramulla-film-izle",
+        "title": "Baramulla",
+        "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/14665\/thumb_baramulla.jpg",
+        "category": "Gerilim"
+    },
+    {
+        "id": "28-years-later-film-izle",
+        "title": "28 Yıl Sonra",
+        "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/14661\/thumb_28-years-later.jpg",
+        "category": "Gerilim"
+    },
+    {
+        "id": "the-astronaut-film-izle",
+        "title": "Astronot",
+        "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/14631\/thumb_the-astronaut.jpg",
+        "category": "Gerilim"
+    },
+    {
+        "id": "a-normal-family-film-izle",
+        "title": "A Normal Family",
+        "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/14584\/thumb_a-normal-family.jpg",
+        "category": "Gerilim"
+    },
+    {
+        "id": "the-elixir-film-izle",
+        "title": "Ölümsüzlük İksiri",
+        "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/14575\/thumb_the-elixir.jpg",
+        "category": "Gerilim"
+    },
+    {
+        "id": "good-news-film-izle",
+        "title": "Uçuş Harekâtı",
+        "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/14570\/thumb_good-news.jpg",
+        "category": "Gerilim"
+    },
+    {
+        "id": "she-walks-in-darkness-film-izle",
+        "title": "Karanlıkta Saklı",
+        "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/14569\/thumb_she-walks-in-darkness.jpg",
+        "category": "Gerilim"
+    },
+    {
+        "id": "june-and-john-film-izle",
+        "title": "June ve John",
+        "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/14562\/thumb_june-and-john.jpg",
+        "category": "Gerilim"
+    },
+    {
+        "id": "the-woman-in-cabin-10-film-izle",
+        "title": "10 Numaralı Kamara",
+        "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/14553\/thumb_the-woman-in-cabin-10.jpg",
+        "category": "Gerilim"
+    },
+    {
+        "id": "a-line-of-fire-film-izle",
+        "title": "Ateş Hattı",
+        "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/14538\/thumb_a-line-of-fire.jpg",
+        "category": "Gerilim"
+    },
+    {
+        "id": "mantis-film-izle",
+        "title": "Mantis",
+        "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/14532\/thumb_mantis.jpg",
+        "category": "Gerilim"
+    },
+    {
+        "id": "the-man-in-my-basement-film-izle",
+        "title": "Bodrumumdaki Adam",
+        "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/14531\/thumb_the-man-in-my-basement.jpg",
+        "category": "Gerilim"
+    },
+    {
+        "id": "cold-blooded-love-film-izle",
+        "title": "Kurye",
+        "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/14513\/thumb_cold-blooded-love.jpg",
+        "category": "Gerilim"
+    },
+    {
+        "id": "revoir-paris-film-izle",
+        "title": "Paris Hatıraları",
+        "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/14501\/thumb_revoir-paris.jpg",
+        "category": "Gerilim"
+    },
+    {
+        "id": "she-rides-shotgun-film-izle",
+        "title": "Polly McClusky’nin Zor Eğitimi",
+        "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/14477\/thumb_she-rides-shotgun.jpg",
+        "category": "Gerilim"
+    },
+    {
+        "id": "canary-black-film-izle",
+        "title": "Siyah Kanarya",
+        "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/14474\/thumb_canary-black.jpg",
+        "category": "Gerilim"
+    },
+    {
+        "id": "ice-road-vengeance-film-izle",
+        "title": "Buz Yolu: İntikam",
+        "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/14472\/thumb_ice-road-vengeance.jpg",
+        "category": "Gerilim"
+    },
+    {
+        "id": "im-toten-winkel-film-izle",
+        "title": "Kör Noktada",
+        "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/14463\/thumb_im-toten-winkel.jpg",
+        "category": "Gerilim"
+    },
+    {
+        "id": "fall-for-me-film-izle",
+        "title": "Aşk Tuzağı",
+        "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/14433\/thumb_fall-for-me.jpg",
+        "category": "Gerilim"
+    },
+    {
+        "id": "night-always-comes-film-izle",
+        "title": "Gece Elbet Çöker",
+        "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/14415\/thumb_night-always-comes.jpg",
+        "category": "Gerilim"
+    },
+    {
+        "id": "jericho-mansions-film-izle",
+        "title": "Jericho&#039;da Terör",
+        "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/14405\/thumb_jericho-mansions.jpg",
+        "category": "Gerilim"
+    },
+    {
+        "id": "mission-impossible-the-final-reckoning-film-izle",
+        "title": "Görevimiz Tehlike - Son Hesaplaşma",
+        "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/14373\/thumb_mission-impossible-the-final-reckoning.jpg",
+        "category": "Gerilim"
+    },
+    {
+        "id": "sayara-film-izle",
+        "title": "Saýara: İntikam Meleği",
+        "image": "https:\/\/cdn.filmmodu.one",
+        "category": "Gerilim"
+    },
+    {
+        "id": "saara-film-izle",
+        "title": "Saýara: İntikam Meleği",
+        "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/14344\/thumb_saara.jpg",
+        "category": "Gerilim"
+    },
+    {
+        "id": "a-normal-woman-film-izle",
+        "title": "Normal Bir Kadın",
+        "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/14318\/thumb_a-normal-woman.jpg",
+        "category": "Gerilim"
+    },
+    {
+        "id": "wall-to-wall-film-izle",
+        "title": "Dört Duvar",
+        "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/14310\/thumb_wall-to-wall.jpg",
+        "category": "Gerilim"
+    },
+    {
+        "id": "final-destination-bloodlines-film-izle",
+        "title": "Son Durak: Kan Bağı",
+        "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/14307\/thumb_final-destination-bloodlines.jpg",
+        "category": "Gerilim"
+    },
+    {
+        "id": "the-amateur-film-izle",
+        "title": "Amatör",
+        "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/14306\/thumb_the-amateur.jpg",
+        "category": "Gerilim"
+    },
+    {
+        "id": "clown-in-a-cornfield-film-izle",
+        "title": "Mısır Tarlasındaki Palyaço",
+        "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/14284\/thumb_clown-in-a-cornfield.jpg",
+        "category": "Gerilim"
+    },
+    {
+        "id": "vampire-hunter-d-film-izle",
+        "title": "Vampir Avcısı D",
+        "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/14856\/thumb_vampire-hunter-d.jpg",
+        "category": "Animasyon"
+    },
+    {
+        "id": "ghost-in-the-shell-2-innocence-film-izle",
+        "title": "Kabuktaki Hayalet 2 Masumiyet",
+        "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/14855\/thumb_ghost-in-the-shell-2-innocence.jpg",
+        "category": "Animasyon"
+    },
+    {
+        "id": "wolf-children-film-izle",
+        "title": "Kurt Çocuklar",
+        "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/14853\/thumb_wolf-children.jpg",
+        "category": "Animasyon"
+    },
+    {
+        "id": "fantastic-planet-film-izle",
+        "title": "Vahşi Gezegen",
+        "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/14848\/thumb_fantastic-planet.jpg",
+        "category": "Animasyon"
+    },
+    {
+        "id": "5-centimeters-per-second-film-izle",
+        "title": "Saniyede Beş Santimetre",
+        "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/14847\/thumb_5-centimeters-per-second.jpg",
+        "category": "Animasyon"
+    },
+    {
+        "id": "akira-film-izle",
+        "title": "Akira",
+        "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/14841\/thumb_akira.jpg",
+        "category": "Animasyon"
+    },
+    {
+        "id": "appleseed-film-izle",
+        "title": "Appurushido",
+        "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/14840\/thumb_appleseed.jpg",
+        "category": "Animasyon"
+    },
+    {
+        "id": "grave-of-the-fireflies-film-izle",
+        "title": "Ateşböceklerinin Mezarı",
+        "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/14837\/thumb_grave-of-the-fireflies.jpg",
+        "category": "Animasyon"
+    },
+    {
+        "id": "a-silent-voice-the-movie-film-izle",
+        "title": "Sesin Şekli",
+        "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/14836\/thumb_a-silent-voice-the-movie.jpg",
+        "category": "Animasyon"
+    },
+    {
+        "id": "weathering-with-you-film-izle",
+        "title": "Tenki no Ko",
+        "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/14832\/thumb_weathering-with-you.jpg",
+        "category": "Animasyon"
+    },
+    {
+        "id": "the-chronicles-of-riddick-dark-fury-film-izle",
+        "title": "Riddick: Korkunç Öfke",
+        "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/14821\/thumb_the-chronicles-of-riddick-dark-fury.jpg",
+        "category": "Animasyon"
+    },
+    {
+        "id": "the-boy-and-the-heron-film-izle",
+        "title": "Çocuk ve Balıkçıl",
+        "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/14817\/thumb_the-boy-and-the-heron.jpg",
+        "category": "Animasyon"
+    },
+    {
+        "id": "the-bad-guys-2-film-izle",
+        "title": "Kim Demiş Kötüyüz Diye? 2",
+        "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/14780\/thumb_the-bad-guys-2.jpg",
+        "category": "Animasyon"
+    },
+    {
+        "id": "mickey-donald-goofy-the-three-musketeers-film-izle",
+        "title": "Mickey, Donald ve Goofy: Üç Silahşörler",
+        "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/14779\/thumb_mickey-donald-goofy-the-three-musketeers.jpg",
+        "category": "Animasyon"
+    },
+    {
+        "id": "prep-landing-naughty-vs-nice-film-izle",
+        "title": "Wayne ve Lanny Yaramaz Çocuğa Karşı",
+        "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/14774\/thumb_prep-landing-naughty-vs-nice.jpg",
+        "category": "Animasyon"
+    },
+    {
+        "id": "dr-seusss-the-sneetches-film-izle",
+        "title": "Dr. Seuss: Sniçler",
+        "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/14758\/thumb_dr-seusss-the-sneetches.jpg",
+        "category": "Animasyon"
+    },
+    {
+        "id": "in-your-dreams-film-izle",
+        "title": "Rüyalar Diyarında",
+        "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/14706\/thumb_in-your-dreams.jpg",
+        "category": "Animasyon"
+    },
+    {
+        "id": "super-charlie-film-izle",
+        "title": "Süper Charlie",
+        "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/14680\/thumb_super-charlie.jpg",
+        "category": "Animasyon"
+    },
+    {
+        "id": "boonie-bears-time-twist-film-izle",
+        "title": "Ayı Kardeşler: Zaman Yolculuğu",
+        "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/14660\/thumb_boonie-bears-time-twist.jpg",
+        "category": "Animasyon"
+    },
+    {
+        "id": "bernard-mission-mars-film-izle",
+        "title": "Süper Ajan Bernard: Görev Mars",
+        "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/14659\/thumb_bernard-mission-mars.jpg",
+        "category": "Animasyon"
+    },
+    {
+        "id": "grand-prix-of-europe-film-izle",
+        "title": "Büyük Yarış",
+        "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/14618\/thumb_grand-prix-of-europe.jpg",
+        "category": "Animasyon"
+    },
+    {
+        "id": "little-emma-film-izle",
+        "title": "Parmak Çocuk Emma",
+        "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/14581\/thumb_little-emma.jpg",
+        "category": "Animasyon"
+    },
+    {
+        "id": "the-twits-film-izle",
+        "title": "Bay ve Bayan Kıl",
+        "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/14571\/thumb_the-twits.jpg",
+        "category": "Animasyon"
+    },
+    {
+        "id": "buffalo-kids-film-izle",
+        "title": "Kovboy Çocuklar",
+        "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/14500\/thumb_buffalo-kids.jpg",
+        "category": "Animasyon"
+    },
+    {
+        "id": "bolshoe-puteshestvie-vokrug-sveta-film-izle",
+        "title": "Büyük Macera 3: Çılgın Dostlar",
+        "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/14499\/thumb_bolshoe-puteshestvie-vokrug-sveta.jpg",
+        "category": "Animasyon"
+    },
+    {
+        "id": "lego-disney-princess-villains-unite-film-izle",
+        "title": "Lego Disney Prenses: Kötüler Birleşiyor",
+        "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/14451\/thumb_lego-disney-princess-villains-unite.jpg",
+        "category": "Animasyon"
+    },
+    {
+        "id": "a-sloth-story-film-izle",
+        "title": "Tembeller Ailesi",
+        "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/14446\/thumb_a-sloth-story.jpg",
+        "category": "Animasyon"
+    },
+    {
+        "id": "extinction-2023-film-izle",
+        "title": "Ormanın Süper Kahramanı",
+        "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/14439\/thumb_extinction-2023.jpg",
+        "category": "Animasyon"
+    },
+    {
+        "id": "zak-wowo-the-legend-of-lendarys-film-izle",
+        "title": "İkizler Takımı",
+        "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/14436\/thumb_zak-wowo-the-legend-of-lendarys.jpg",
+        "category": "Animasyon"
+    },
+    {
+        "id": "ozi-voice-of-the-forest-film-izle",
+        "title": "Ozi: Doğanın Koruyucusu",
+        "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/14414\/thumb_ozi-voice-of-the-forest.jpg",
+        "category": "Animasyon"
+    },
+    {
+        "id": "mononoke-movie-2-hinezumi-film-izle",
+        "title": "Mononoke the Movie: Chapter II - The Ashes of Rage",
+        "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/14412\/thumb_mononoke-movie-2-hinezumi.jpg",
+        "category": "Animasyon"
+    },
+    {
+        "id": "fixed-film-izle",
+        "title": "Son Bir Macera",
+        "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/14400\/thumb_fixed.jpg",
+        "category": "Animasyon"
+    },
+    {
+        "id": "smurfs-film-izle",
+        "title": "Şirinler Filmi",
+        "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/14364\/thumb_smurfs.jpg",
+        "category": "Animasyon"
+    },
+    {
+        "id": "jimmy-neutron-boy-genius-film-izle",
+        "title": "Jimmy Neutron: Dahi Çocuk",
+        "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/14355\/thumb_jimmy-neutron-boy-genius.jpg",
+        "category": "Animasyon"
+    },
+    {
+        "id": "kensukes-kingdom-film-izle",
+        "title": "Saklı Krallık",
+        "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/14347\/thumb_kensukes-kingdom.jpg",
+        "category": "Animasyon"
+    },
+    {
+        "id": "lilo-stitch-film-izle",
+        "title": "Lilo ve Stiç",
+        "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/14324\/thumb_lilo-stitch.jpg",
+        "category": "Animasyon"
+    },
+    {
+        "id": "stitch-the-movie-film-izle",
+        "title": "Stitch&#039;in Filmi",
+        "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/14323\/thumb_stitch-the-movie.jpg",
+        "category": "Animasyon"
+    },
+    {
+        "id": "inspector-sun-film-izle",
+        "title": "Dedektif Sun ve Ekibi: Kurtarma Operasyonu",
+        "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/14276\/thumb_inspector-sun.jpg",
+        "category": "Animasyon"
+    },
+    {
+        "id": "flow-film-izle",
+        "title": "Flow: Bir Kedinin Yolculuğu",
+        "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/14220\/thumb_flow.jpg",
+        "category": "Animasyon"
+    },
+    {
+        "id": "kpop-demon-hunters-film-izle",
+        "title": "K-Pop: İblis Avcıları",
+        "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/14175\/thumb_kpop-demon-hunters.jpg",
+        "category": "Animasyon"
+    },
+    {
+        "id": "the-lord-of-the-rings-the-war-of-the-rohirrim-film-izle",
+        "title": "Yüzüklerin Efendisi: Rohirrim&#039;in Savaşı",
+        "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/14169\/thumb_the-lord-of-the-rings-the-war-of-the-rohirrim.jpg",
+        "category": "Animasyon"
+    },
+    {
+        "id": "lost-in-starlight-film-izle",
+        "title": "Bir Yıldız Kadar Uzak",
+        "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/14166\/thumb_lost-in-starlight.jpg",
+        "category": "Animasyon"
+    },
+    {
+        "id": "versay-in-gulu-film-izle",
+        "title": "Versay&#039;ın Gülü",
+        "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/14139\/thumb_nJOiv2UNhNUoUg9MvX4bzW0YX3Y.jpg",
+        "category": "Animasyon"
+    },
+    {
+        "id": "mufasa-the-lion-king-film-izle",
+        "title": "Mufasa: Aslan Kral",
+        "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/14080\/thumb_mufasa-the-lion-king.jpg",
+        "category": "Animasyon"
+    },
+    {
+        "id": "miraculous-world-londres-la-course-contre-le-temps-film-izle",
+        "title": "Mucizevi Londra: Zamanın Sınırında",
+        "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/14044\/thumb_vl8LFZAkVheAPreV7snvXGh3cbb.jpg",
+        "category": "Animasyon"
+    },
+    {
+        "id": "wallace-gromit-vengeance-most-fowl-film-izle",
+        "title": "Wallace ve Gromit: Kinci Kuş",
+        "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/14019\/thumb_75HC6rSUX8UBWgW87s8iMOaW7qr.jpg",
+        "category": "Animasyon"
+    },
+    {
+        "id": "mickey-and-the-very-many-christmases-film-izle",
+        "title": "Mickey: Her Gün Yeni Yıl",
+        "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/14009\/thumb_1mOsGkPiGQIOMujSPb0vKBqrlB5.jpg",
+        "category": "Animasyon"
+    },
+    {
+        "id": "super-maymun-shimmy-film-izle",
+        "title": "Süper Maymun Shimmy",
+        "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/13982\/thumb_yzZgTkCtGzdI7ufWvwAb69JENYt.jpg",
+        "category": "Animasyon"
+    },
+    {
+        "id": "that-christmas-film-izle",
+        "title": "Bir Zamanlar Noel&#039;de",
+        "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/13961\/thumb_2Y958x9Jo8eR6YE08aYm8f3Xaha.jpg",
+        "category": "Animasyon"
+    },
+    {
+        "id": "una-aventura-gigante-film-izle",
+        "title": "Benim Uçan Dev Maceram",
+        "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/13956\/thumb_dcukuBV2EUxxKQni12LK4HAYTwX.jpg",
+        "category": "Animasyon"
+    },
+    {
+        "id": "spellbound-2024-film-izle",
+        "title": "Büyülü Ailem",
+        "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/13948\/thumb_8OcWJkenrZ6mA8lvRSAhNXts3ps.jpg",
+        "category": "Animasyon"
+    },
+    {
+        "id": "10-lives-film-izle",
+        "title": "Meraklı Kedinin 10 Yaşamı",
+        "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/13910\/thumb_w7wLlixX3RembHgZTO3Z2PbDhog.jpg",
+        "category": "Animasyon"
+    },
+    {
+        "id": "the-inseparables-film-izle",
+        "title": "Oyuncaklar Firarda",
+        "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/13909\/thumb_mXfE4zj7SHXOgeBRQE20GjbhnUD.jpg",
+        "category": "Animasyon"
+    },
+    {
+        "id": "transformers-one-film-izle",
+        "title": "Transformers: Başlangıç",
+        "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/13905\/thumb_5tlRopdbFf8rFjPmDY56WmnkmR3.jpg",
+        "category": "Animasyon"
+    },
+    {
+        "id": "chlopi-film-izle",
+        "title": "Köylüler",
+        "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/13893\/thumb_ckrbMzuq8dXpejdNneHodS0vNVx.jpg",
+        "category": "Animasyon"
+    },
+    {
+        "id": "ibelin-film-izle",
+        "title": "Ibelin&#039;in Olağanüstü Hayatı",
+        "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/13885\/thumb_1FkHH0g2CFPvREqwQy74vJyEnnY.jpg",
+        "category": "Animasyon"
+    },
+    {
+        "id": "altin-gaga-ve-macera-cetesi-film-izle",
+        "title": "Altın Gaga ve Macera Çetesi",
+        "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/13821\/thumb_ojJZR9gfWypWjhyv1lAiRx3ONH0.jpg",
+        "category": "Animasyon"
+    },
+    {
+        "id": "katak-le-brave-beluga-film-izle",
+        "title": "Cesur Balina Katak",
+        "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/13817\/thumb_e1UJYWLDniMsgN7rua4pKLXGSRY.jpg",
+        "category": "Animasyon"
+    },
+    {
+        "id": "richard-the-stork-and-the-mystery-of-the-great-jewel-film-izle",
+        "title": "Leylek Richard ve Büyük Mücevherin Gizemi",
+        "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/13803\/thumb_oaWFUwAI9KMFN6w02wiI8crPrga.jpg",
+        "category": "Animasyon"
+    },
+    {
+        "id": "inside-out-2-film-izle",
+        "title": "Ters Yüz 2",
+        "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/13788\/thumb_dptKUdlnL54xtxE3KuXiDMSoTBf.jpg",
+        "category": "Animasyon"
+    },
+    {
+        "id": "despicable-me-4-film-izle",
+        "title": "Çılgın Hırsız 4",
+        "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/13782\/thumb_22eOFketrHdJeowW3FkkRJsrSHZ.jpg",
+        "category": "Animasyon"
+    },
+    {
+        "id": "the-garfield-movie-film-izle",
+        "title": "Garfield",
+        "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/13770\/thumb_sf6i8gcZX69q7W3ErgJjAXucsSN.jpg",
+        "category": "Animasyon"
+    },
+    {
+        "id": "cocuk-ve-balikcil-film-izle",
+        "title": "Çocuk ve Balıkçıl",
+        "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/13737\/thumb_atNJl0r4iobtp1qbZvraALgVtZ5.jpg",
+        "category": "Animasyon"
+    },
+    {
+        "id": "migration-film-izle",
+        "title": "Ördeklerin Göçü",
+        "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/13704\/thumb_gy4kyXguaJ5B2oPNtRt2sc5BchM.jpg",
+        "category": "Animasyon"
+    },
+    {
+        "id": "rally-road-racers-film-izle",
+        "title": "Kahraman Yarışçılar",
+        "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/13676\/thumb_sJh9WemQi6aFAP5N02ciXiP8jf8.jpg",
+        "category": "Animasyon"
+    },
+    {
+        "id": "orion-and-the-dark-film-izle",
+        "title": "Orion ve Karanlık",
+        "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/13650\/thumb_8KnNgTPibxOAWuHh811Pq9Y7421.jpg",
+        "category": "Animasyon"
     }
 ]

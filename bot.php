@@ -1,44 +1,32 @@
 <?php
 header('Content-Type: application/json; charset=utf-8');
 
-// Türkçe Dublaj ve Altyazılı dahil TÜM kategorileri isimlendirerek ekledik
+// En önemliler (Dublaj/Altyazı) en başta!
 $categories = [
-    'turkce-dublaj-hd-film-izle' => 'Türkçe Dublaj',
+    'turkce-dublaj-filmler' => 'Türkçe Dublaj',
     'altyazili-filmler' => 'Altyazılı Filmler',
-    '4k' => '4K Kalite',
-    'aile' => 'Aile',
     'aksiyon' => 'Aksiyon',
-    'animasyon' => 'Animasyon',
-    'belgesel' => 'Belgesel',
     'bilim-kurgu' => 'Bilim Kurgu',
-    'dram' => 'Dram',
-    'fantastik' => 'Fantastik',
-    'gerilim' => 'Gerilim',
-    'gizem' => 'Gizem',
-    'hint-filmleri' => 'Hint Filmleri',
-    'kisa-film' => 'Kısa Film',
     'komedi' => 'Komedi',
     'korku' => 'Korku',
-    'kult-filmler' => 'Kült Filmler',
+    'gerilim' => 'Gerilim',
+    'animasyon' => 'Animasyon',
     'macera' => 'Macera',
-    'muzik' => 'Müzik',
-    'oscar-odullu-filmler' => 'Oscar Ödüllü',
-    'romantik' => 'Romantik',
     'savas' => 'Savaş',
-    'stand-up' => 'Stand Up',
-    'suc' => 'Suç',
     'tarih' => 'Tarih',
-    'tavsiye-filmler' => 'Tavsiye Filmler',
-    'tv-film' => 'TV Film',
-    'vahsi-bati' => 'Vahşi Batı'
+    'suc' => 'Suç',
+    'dram' => 'Dram',
+    'aile' => 'Aile',
+    'fantastik' => 'Fantastik',
+    'gizem' => 'Gizem'
 ];
 
 $moviesArray = [];
 
 foreach ($categories as $slug => $catName) {
-    for ($i = 1; $i <= 2; $i++) { 
-        // Dublaj ve Altyazı ana dizinde, diğerleri film-tur dizininde
-        if ($slug === 'turkce-dublaj-hd-film-izle' || $slug === 'altyazili-filmler') {
+    // Timeout olmaması için her kategoriden ilk 1 sayfayı çekiyoruz
+    for ($i = 1; $i <= 1; $i++) { 
+        if ($slug === 'turkce-dublaj-filmler' || $slug === 'altyazili-filmler') {
             $url = "https://www.filmmodu.one/$slug?page=$i";
         } else {
             $url = "https://www.filmmodu.one/film-tur/$slug?page=$i";
@@ -75,5 +63,5 @@ foreach ($categories as $slug => $catName) {
     }
 }
 file_put_contents('movies.json', json_encode(array_values($moviesArray), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
-echo "Bot güncellendi. Türkçe Dublaj dahil tüm filmler başarıyla çekildi.";
+echo "Bot çalıştı, tüm ana kategoriler başarıyla çekildi.";
 ?>

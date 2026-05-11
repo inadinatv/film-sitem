@@ -1,5 +1,5 @@
 export default async function handler(req, res) {
-  const { id, vid } = req.query; // vid parametresi dil seçimine göre gelir
+  const { id, vid } = req.query;
   if (!id) return res.status(400).send("Film ID eksik.");
 
   try {
@@ -8,7 +8,6 @@ export default async function handler(req, res) {
     });
     const html = await pageReq.text();
     
-    // Dil parametresi (vid) gelirse onu kullan, gelmezse sayfadaki asıl videoyu çek
     const videoId = vid || (html.match(/videoId\s*=\s*'([^']+)'/) || html.match(/data-movie-id="([^"]+)"/) || [])[1];
     const csrfToken = (html.match(/"csrf-token" content="(.*?)"/) || [])[1];
 
@@ -22,6 +21,19 @@ export default async function handler(req, res) {
     if (!data.sources || data.sources.length === 0) return res.status(404).send("Link bulunamadı.");
     const videoUrl = data.sources[data.sources.length - 1].src;
 
+    // ALTYAZI (SUBTITLE) YAKALAMA SİSTEMİ
+    let tracksHtml = "";
+    if (data.tracks && Array.isArray(data.tracks)) {
+        data.tracks.forEach(track => {
+            // Sadece captions (altyazı) türündeki dosyaları alıyoruz
+            if (track.kind === 'captions' || track.kind === 'subtitles') {
+                // Eğer altyazı dili belirtilmemişse varsayılan olarak Türkçe (tr) etiketliyoruz
+                let label = track.label ? track.label : 'Türkçe';
+                tracksHtml += `<track kind="captions" label="${label}" src="${track.file}" srclang="tr" default />\n`;
+            }
+        });
+    }
+
     const playerHtml = `
     <!DOCTYPE html>
     <html lang="tr">
@@ -34,12 +46,14 @@ export default async function handler(req, res) {
             body { margin: 0; background: #000; overflow: hidden; }
             .container { width: 100vw; height: 100vh; display: flex; align-items: center; justify-content: center; }
             video { width: 100%; height: 100%; }
-            :root { --plyr-color-main: #e50914; } /* Kırmızı Vurgu Rengi */
+            :root { --plyr-color-main: #e50914; }
         </style>
     </head>
     <body>
         <div class="container">
-            <video id="player" playsinline controls crossorigin></video>
+            <video id="player" playsinline controls crossorigin>
+                ${tracksHtml}
+            </video>
         </div>
         
         <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
@@ -49,9 +63,9 @@ export default async function handler(req, res) {
             const source = '${videoUrl}';
             
             const defaultOptions = {
-                controls: ['play-large', 'play', 'progress', 'current-time', 'duration', 'mute', 'volume', 'settings', 'pip', 'airplay', 'fullscreen'],
+                controls: ['play-large', 'play', 'progress', 'current-time', 'duration', 'mute', 'volume', 'captions', 'settings', 'pip', 'airplay', 'fullscreen'],
                 seekTime: 10,
-                keyboard: { focused: true, global: true }
+                captions: { active: true, update: true, language: 'tr' } // Altyazıyı otomatik aç
             };
 
             if (Hls.isSupported() && source.includes('.m3u8')) {

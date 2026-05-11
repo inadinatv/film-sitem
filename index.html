@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bedava Film Arşivi</title>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #141414; color: white; margin: 0; padding: 20px; }
+        h1 { text-align: center; color: #e50914; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 15px; }
+        .card { background: #222; border-radius: 8px; overflow: hidden; text-align: center; text-decoration: none; color: white; }
+        .card img { width: 100%; height: 220px; object-fit: cover; }
+        .card h3 { font-size: 14px; padding: 10px; margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;}
+    </style>
+</head>
+<body>
+    <h1>🎬 Film Arşivi</h1>
+    <div class="grid" id="movieGrid">Yükleniyor...</div>
+
+    <script>
+        async function getir() {
+            const res = await fetch('movies.json');
+            const filmler = await res.json();
+            const grid = document.getElementById('movieGrid');
+            grid.innerHTML = "";
+            filmler.forEach(film => {
+                grid.innerHTML += `
+                    <a href="/api/play?id=${film.id}" target="_blank" class="card">
+                        <img src="${film.image}" alt="Afiş">
+                        <h3>${film.title}</h3>
+                    </a>`;
+            });
+        }
+        getir();
+    </script>
+</body>
+</html>

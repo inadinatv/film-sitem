@@ -3,51 +3,69 @@ export default async function handler(req, res) {
 
   // 1. ALTYAZI PROXY SİSTEMİ
   if (trackUrl) {
-    try {
-      const trkRes = await fetch(trackUrl, {
-        headers: { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)", "Referer": "https://www.filmmodu.one/" }
-      });
-      let trkTxt = await trkRes.text();
-      res.setHeader('Content-Type', 'text/vtt; charset=utf-8');
-      res.setHeader('Access-Control-Allow-Origin', '*');
-      return res.status(200).send(trkTxt.includes('WEBVTT') ? trkTxt : "WEBVTT\n\n" + trkTxt);
-    } catch(e) { return res.status(500).send(""); }
+      try {
+          const trkRes = await fetch(trackUrl, {
+              headers: {
+                  "User-Agent": "Mozilla/5.0 (Web0S; Linux/SmartTV)",
+                  "Referer": "https://www.filmmodu.one/"
+              }
+          });
+          let trkTxt = await trkRes.text();
+          res.setHeader('Content-Type', 'text/vtt; charset=utf-8');
+          res.setHeader('Access-Control-Allow-Origin', '*');
+          return res.status(200).send(trkTxt.includes('WEBVTT') ? trkTxt : "WEBVTT\n\n" + trkTxt);
+      } catch(e) { return res.status(500).send(""); }
   }
 
   if (!id) return res.status(400).send("Film ID eksik.");
 
   try {
-    // 2. SAYFAYA GİDİP ÇEREZLERİ (COOKIE) VE TOKEN'I ALIYORUZ
+    // CLOUDFLARE ENGELİNİ AŞAN SİHİRLİ KİMLİK
+    const ua = "Mozilla/5.0 (Web0S; Linux/SmartTV)"; 
+    
     const pageReq = await fetch(`https://www.filmmodu.one/${id}`, {
-      headers: { "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)", "referer": "https://www.filmmodu.one/" }
+      headers: { "user-agent": ua, "referer": "https://www.filmmodu.one/" }
     });
     
     const html = await pageReq.text();
-    const cookies = pageReq.headers.get('set-cookie'); // Sunucunun verdiği kimlik kartı (çerez)
-
     const vId = vid || (html.match(/videoId\s*=\s*'([^']+)'/) || html.match(/data-movie-id="([^"]+)"/) || [])[1];
     const csrf = (html.match(/"csrf-token" content="(.*?)"/) || [])[1];
 
-    if (!vId || !csrf) return res.status(500).send("Video ID veya Token bulunamadı. Lütfen sayfayı yenileyip tekrar deneyin.");
+    if (!vId || !csrf) return res.status(500).send("Video ID veya Token bulunamadı. Sayfayı yenileyin.");
 
-    // 3. ÇEREZLERLE BİRLİKTE KAYNAK İSTİYORUZ (Link Bulunamadı Hatasını Burası Çözer)
-    const sourceReq = await fetch(`https://www.filmmodu.one/get-source?movie_id=${vId}`, {
-      headers: {
-        "x-csrf-token": csrf,
-        "x-requested-with": "XMLHttpRequest",
-        "cookie": cookies, // İşte sihirli dokunuş burası
-        "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
-        "referer": `https://www.filmmodu.one/${id}`,
-        "accept": "application/json, text/javascript, */*; q=0.01"
-      }
-    });
+    // 2. AKILLI DİL VE LİNK BULUCU (Önce Türkçe, Sonra İngilizce Dener)
+    let data = null;
+    const typesToTry = ['tr', 'en', '']; 
     
-    const data = await sourceReq.json();
-    if (!data.sources || data.sources.length === 0) return res.status(404).send("Sunucu kaynak vermedi. Site koruması geçici olarak engellemiş olabilir.");
+    for (let t of typesToTry) {
+        let url = `https://www.filmmodu.one/get-source?movie_id=${vId}`;
+        if (t) url += `&type=${t}`;
+        
+        const sourceReq = await fetch(url, {
+          headers: {
+            "x-csrf-token": csrf,
+            "x-requested-with": "XMLHttpRequest",
+            "user-agent": ua,
+            "referer": `https://www.filmmodu.one/${id}`
+          }
+        });
+        
+        try {
+            const tempData = await sourceReq.json();
+            if (tempData.sources && tempData.sources.length > 0) {
+                data = tempData;
+                break; // Linki bulduğu an aramayı durdurur ve videoyu çeker!
+            }
+        } catch(e) { /* Hata olursa sıradaki dile geçer */ }
+    }
+
+    if (!data || !data.sources || data.sources.length === 0) {
+        return res.status(404).send("Sunucu kaynak vermedi. Site koruması geçici olarak engellemiş olabilir.");
+    }
     
     const videoUrl = data.sources[data.sources.length - 1].src;
 
-    // Altyazı yakalama
+    // 3. ALTYAZILARI VİDEOYA GÖMME
     let tracks = "";
     if (data.tracks) {
       data.tracks.forEach(t => {
@@ -60,12 +78,14 @@ export default async function handler(req, res) {
       });
     }
 
+    // 4. OYNATICIYI (PLAYER) EKRANA ÇİZME
     res.setHeader('Content-Type', 'text/html; charset=utf-8');
     res.send(`
     <!DOCTYPE html>
     <html lang="tr">
     <head>
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>İnadına TV Player</title>
         <link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css" />
         <style>body { margin:0; background:#000; overflow:hidden; } video { width:100vw; height:100vh; } :root { --plyr-color-main: #e50914; }</style>
     </head>
@@ -75,7 +95,7 @@ export default async function handler(req, res) {
         <script src="https://cdn.plyr.io/3.7.8/plyr.polyfilled.js"></script>
         <script>
             const v = document.querySelector('video');
-            const opts = { captions: { active: true, language: 'tr' }, seekTime: 10 };
+            const opts = { captions: { active: true, language: 'tr', update: true }, seekTime: 10 };
             if (Hls.isSupported() && '${videoUrl}'.includes('m3u8')) {
                 const hls = new Hls(); hls.loadSource('${videoUrl}'); hls.attachMedia(v);
                 hls.on(Hls.Events.MANIFEST_PARSED, () => new Plyr(v, opts));
@@ -83,5 +103,5 @@ export default async function handler(req, res) {
         </script>
     </body>
     </html>`);
-  } catch (e) { res.status(500).send("Sistem Hatası: " + e.message); }
+  } catch (e) { res.status(500).send("Hata: " + e.message); }
 }

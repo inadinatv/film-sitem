@@ -1,14 +1,19 @@
 <?php
 header('Content-Type: application/json; charset=utf-8');
 
+// Ekran görüntüsündeki TÜM kategoriler eklendi
 $categories = [
-    'aksiyon', 'komedi', 'bilim-kurgu', 'korku', 'gerilim', 
-    'macera', 'animasyon', 'dram', 'fantastik', 'sucre', 'tarih', 'savas'
+    '4k', 'aile', 'aksiyon', 'animasyon', 'belgesel', 'bilim-kurgu', 'dram',
+    'fantastik', 'gerilim', 'gizem', 'hint-filmleri', 'kisa-film', 'komedi',
+    'korku', 'kult-filmler', 'macera', 'muzik', 'oscar-odullu-filmler',
+    'romantik', 'savas', 'stand-up', 'suc', 'tarih', 'tavsiye-filmler',
+    'tv-film', 'vahsi-bati'
 ];
+
 $moviesArray = [];
 
 foreach ($categories as $category) {
-    for ($i = 1; $i <= 3; $i++) { // Hız için şimdilik her kategoriden 3 sayfa
+    for ($i = 1; $i <= 2; $i++) { // Hız ve güvenlik için her kategoriden ilk 2 sayfa
         $url = "https://www.filmmodu.one/film-tur/$category?page=$i";
         $ch = curl_init($url);
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
@@ -33,7 +38,8 @@ foreach ($categories as $category) {
                         "title" => trim($turkishName[1] ?? 'İsimsiz Film'),
                         "image" => $logo[1] ?? '',
                         "year" => $year[1] ?? '2024',
-                        "category" => ucfirst($category),
+                        // Linkteki '-' işaretlerini boşluğa çevirip baş harflerini büyütür (Örn: bilim-kurgu -> Bilim Kurgu)
+                        "category" => ucwords(str_replace('-', ' ', $category)), 
                         "desc" => "Bu film için detaylar oynatıcı sayfasında otomatik güncellenmektedir." 
                     ];
                 }
@@ -42,5 +48,5 @@ foreach ($categories as $category) {
     }
 }
 file_put_contents('movies.json', json_encode(array_values($moviesArray), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
-echo "Bot başarıyla güncellendi.";
+echo "Bot başarıyla çalıştı. Tüm kategorilerden filmler çekildi.";
 ?>

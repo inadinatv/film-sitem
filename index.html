@@ -4,118 +4,127 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>İnadına TV - Film Kuşağı</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        :root { --primary: #e50914; --bg: #0f0f0f; --card-bg: #1f1f1f; --text: #ffffff; --shadow: 0 10px 30px rgba(0,0,0,0.8); }
-        body { font-family: 'Segoe UI', Tahoma, sans-serif; background-color: var(--bg); color: var(--text); margin: 0; padding: 0; }
+        :root { --primary: #e50914; --bg: #0b0b0b; --card-bg: #1a1a1a; --text: #ffffff; }
+        body { font-family: 'Poppins', sans-serif; background-color: var(--bg); color: var(--text); margin: 0; }
         
-        header { padding: 20px; text-align: center; background: #1a1a1a; position: sticky; top: 0; z-index: 100; box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
-        h1 { color: var(--primary); text-transform: uppercase; letter-spacing: 2px; margin: 0 0 15px 0; font-size: 24px; text-shadow: 2px 2px 4px rgba(0,0,0,0.5); }
+        header { padding: 15px; display: flex; align-items: center; justify-content: space-between; background: #111; position: sticky; top: 0; z-index: 1000; box-shadow: 0 5px 15px rgba(0,0,0,0.5); }
+        .logo { color: var(--primary); font-weight: 800; font-size: 20px; text-decoration: none; }
         
-        .search-box { width: 90%; max-width: 500px; padding: 12px 20px; border-radius: 25px; border: none; background: var(--card-bg); color: white; outline: none; margin-bottom: 15px; font-size: 16px; }
+        .search-container { flex: 1; margin: 0 20px; }
+        .search-box { width: 100%; padding: 10px 15px; border-radius: 20px; border: none; background: #222; color: white; outline: none; }
 
-        /* Kategori Menüsü */
-        .categories { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; max-width: 800px; margin: 0 auto; }
-        .cat-btn { background: var(--card-bg); border: 1px solid #333; color: white; padding: 8px 16px; border-radius: 20px; cursor: pointer; transition: 0.2s; font-size: 14px; }
-        .cat-btn:hover, .cat-btn.active { background: var(--primary); border-color: var(--primary); }
+        /* Gizli Kategori Menüsü */
+        .menu-btn { font-size: 24px; cursor: pointer; color: var(--primary); }
+        .sidebar { position: fixed; right: -250px; top: 0; width: 250px; height: 100%; background: #111; transition: 0.3s; z-index: 2000; padding: 20px; box-shadow: -5px 0 15px rgba(0,0,0,0.5); }
+        .sidebar.active { right: 0; }
+        .sidebar h2 { border-bottom: 1px solid var(--primary); padding-bottom: 10px; }
+        .cat-item { display: block; padding: 12px; color: #ccc; text-decoration: none; border-radius: 5px; margin-bottom: 5px; }
+        .cat-item:hover { background: var(--primary); color: white; }
 
-        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 15px; padding: 20px; max-width: 1200px; margin: 0 auto; }
-        .card { background: var(--card-bg); border-radius: 12px; overflow: hidden; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(0,0,0,0.3); position: relative; }
-        .card:hover { transform: scale(1.05); box-shadow: var(--shadow); }
-        .card img { width: 100%; height: 210px; object-fit: cover; }
-        .card h3 { font-size: 13px; padding: 8px; margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-align: center; }
-        .card .badge { position: absolute; top: 5px; right: 5px; background: rgba(229,9,20,0.8); padding: 3px 8px; border-radius: 5px; font-size: 11px; font-weight: bold; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 15px; padding: 20px; }
+        .card { background: var(--card-bg); border-radius: 10px; overflow: hidden; cursor: pointer; transition: 0.3s; position: relative; }
+        .card:hover { transform: scale(1.05); }
+        .card img { width: 100%; height: 200px; object-fit: cover; }
+        .card h3 { font-size: 12px; padding: 8px; margin: 0; text-align: center; }
 
-        /* Detay Modal */
-        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.9); backdrop-filter: blur(5px); }
-        .modal-content { background: var(--card-bg); margin: 10% auto; padding: 25px; width: 85%; max-width: 400px; border-radius: 20px; text-align: center; animation: slideUp 0.4s ease; position: relative; }
-        @keyframes slideUp { from { transform: translateY(50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-        .play-btn { background: var(--primary); color: white; padding: 12px; display: block; margin-top: 15px; text-decoration: none; border-radius: 10px; font-weight: bold; }
-        .close-btn { position: absolute; top: 10px; right: 15px; color: #aaa; cursor: pointer; font-size: 28px; font-weight: bold; }
+        .load-more { display: block; margin: 20px auto; padding: 10px 30px; background: var(--primary); color: white; border: none; border-radius: 25px; cursor: pointer; font-weight: bold; }
+
+        /* Modern Modal */
+        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 3000; align-items: center; justify-content: center; padding: 20px; }
+        .modal-content { background: #1a1a1a; padding: 30px; border-radius: 20px; max-width: 500px; width: 100%; text-align: center; position: relative; }
+        .close-modal { position: absolute; top: 15px; right: 20px; font-size: 30px; cursor: pointer; }
+        .play-btn { background: var(--primary); color: white; padding: 15px; display: block; margin-top: 20px; text-decoration: none; border-radius: 10px; font-weight: bold; font-size: 18px; }
     </style>
 </head>
 <body>
 
 <header>
-    <h1>🎬 İNADINA TV FİLM KUŞAĞI</h1>
-    <input type="text" id="searchInput" class="search-box" placeholder="Film ara..." onkeyup="filterMovies()">
-    
-    <div class="categories" id="categoryContainer">
-        </div>
+    <a href="#" class="logo">İNADINA TV</a>
+    <div class="search-container">
+        <input type="text" id="searchInput" class="search-box" placeholder="Film adı yazın..." onkeyup="resetAndFilter()">
+    </div>
+    <div class="menu-btn" onclick="toggleMenu()"><i class="fas fa-bars"></i></div>
 </header>
 
-<div class="grid" id="movieGrid">Yükleniyor... (Eğer filmler gelmiyorsa GitHub'dan botu tekrar çalıştırın)</div>
+<div class="sidebar" id="sidebar">
+    <div style="text-align: right; font-size: 30px; cursor: pointer;" onclick="toggleMenu()">&times;</div>
+    <h2>Kategoriler</h2>
+    <div id="catList"></div>
+</div>
+
+<div class="grid" id="movieGrid"></div>
+<button id="loadMoreBtn" class="load-more" onclick="loadMore()">DAHA FAZLA GÖSTER</button>
 
 <div id="movieModal" class="modal">
     <div class="modal-content">
-        <span class="close-btn" onclick="closeModal()">&times;</span>
-        <img id="modalImg" src="" style="width: 150px; border-radius: 10px; margin-bottom: 10px;">
-        <h2 id="modalTitle" style="font-size: 18px; margin-bottom: 5px;">Film Adı</h2>
-        <span id="modalCat" style="color: var(--primary); font-size: 12px;">Kategori</span>
-        <a id="playLink" href="#" target="_blank" class="play-btn">▶ Player ile İzle</a>
+        <span class="close-modal" onclick="closeModal()">&times;</span>
+        <img id="mImg" src="" style="width: 150px; border-radius: 10px; box-shadow: 0 0 20px var(--primary);">
+        <h2 id="mTitle" style="margin: 15px 0 5px 0;"></h2>
+        <p id="mYear" style="color: #888; margin: 0;"></p>
+        <p id="mDesc" style="font-size: 14px; color: #ccc; line-height: 1.6; margin-top: 15px;">Film açıklaması hazırlanıyor...</p>
+        <a id="playLink" href="#" target="_blank" class="play-btn"><i class="fas fa-play"></i> TÜRKÇE DUBLAJ İZLE</a>
     </div>
 </div>
 
 <script>
-    let allMovies = [];
-    let currentCategory = "Tümü";
+    let allMovies = [], filteredMovies = [], visibleCount = 20;
 
-    async function fetchMovies() {
-        try {
-            const res = await fetch('movies.json');
-            allMovies = await res.json();
-            setupCategories();
-            filterMovies();
-        } catch (e) {
-            document.getElementById('movieGrid').innerHTML = "Film verileri çekilemedi.";
-        }
+    async function start() {
+        const res = await fetch('movies.json');
+        allMovies = await res.json();
+        filteredMovies = allMovies;
+        renderCategories();
+        renderMovies();
     }
 
-    function setupCategories() {
-        const container = document.getElementById('categoryContainer');
-        // Benzersiz kategorileri bul
-        const categories = ["Tümü", ...new Set(allMovies.map(m => m.category).filter(Boolean))];
-        
-        container.innerHTML = categories.map(cat => 
-            `<button class="cat-btn ${cat === 'Tümü' ? 'active' : ''}" onclick="selectCategory('${cat}', this)">${cat}</button>`
+    function renderCategories() {
+        const cats = ["Tümü", ...new Set(allMovies.map(m => m.category))];
+        document.getElementById('catList').innerHTML = cats.map(c => 
+            `<a href="#" class="cat-item" onclick="filterByCat('${c}')">${c}</a>`
         ).join("");
     }
 
-    function selectCategory(cat, btn) {
-        currentCategory = cat;
-        document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        filterMovies();
-    }
-
-    function filterMovies() {
-        const term = document.getElementById('searchInput').value.toLowerCase();
-        const filtered = allMovies.filter(f => 
-            (currentCategory === "Tümü" || f.category === currentCategory) &&
-            f.title.toLowerCase().includes(term)
-        );
-        
+    function renderMovies() {
         const grid = document.getElementById('movieGrid');
-        grid.innerHTML = filtered.map(film => `
-            <div class="card" onclick="openModal('${film.id}', '${film.title.replace(/'/g, "\\'")}', '${film.image}', '${film.category}')">
-                <span class="badge">${film.category || 'Film'}</span>
-                <img src="${film.image}" alt="Afiş" loading="lazy">
-                <h3>${film.title}</h3>
+        grid.innerHTML = filteredMovies.slice(0, visibleCount).map(f => `
+            <div class="card" onclick="openModal('${f.id}', '${f.title.replace(/'/g, "\\'")}', '${f.image}', '${f.year}')">
+                <img src="${f.image}" loading="lazy">
+                <h3>${f.title}</h3>
             </div>
         `).join("");
+        document.getElementById('loadMoreBtn').style.display = visibleCount >= filteredMovies.length ? 'none' : 'block';
     }
 
-    function openModal(id, title, image, category) {
-        document.getElementById('modalTitle').innerText = title;
-        document.getElementById('modalImg').src = image;
-        document.getElementById('modalCat').innerText = category;
+    function loadMore() { visibleCount += 20; renderMovies(); }
+    
+    function resetAndFilter() {
+        const term = document.getElementById('searchInput').value.toLowerCase();
+        filteredMovies = allMovies.filter(m => m.title.toLowerCase().includes(term));
+        visibleCount = 20;
+        renderMovies();
+    }
+
+    function filterByCat(cat) {
+        filteredMovies = cat === "Tümü" ? allMovies : allMovies.filter(m => m.category === cat);
+        visibleCount = 20;
+        renderMovies();
+        toggleMenu();
+    }
+
+    function toggleMenu() { document.getElementById('sidebar').classList.toggle('active'); }
+    
+    function openModal(id, title, img, year) {
+        document.getElementById('mTitle').innerText = title;
+        document.getElementById('mImg').src = img;
+        document.getElementById('mYear').innerText = year + " | HD Kalite";
         document.getElementById('playLink').href = `/api/play?id=${id}`;
-        document.getElementById('movieModal').style.display = "block";
+        document.getElementById('movieModal').style.display = 'flex';
     }
 
-    function closeModal() { document.getElementById('movieModal').style.display = "none"; }
-    window.onclick = function(e) { if (e.target == document.getElementById('movieModal')) closeModal(); }
-
-    fetchMovies();
+    function closeModal() { document.getElementById('movieModal').style.display = 'none'; }
+    start();
 </script>
 </body>
 </html>

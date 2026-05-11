@@ -1,7 +1,6 @@
 <?php
 header('Content-Type: application/json; charset=utf-8');
 
-// Ekran görüntüsündeki TÜM kategoriler eklendi
 $categories = [
     '4k', 'aile', 'aksiyon', 'animasyon', 'belgesel', 'bilim-kurgu', 'dram',
     'fantastik', 'gerilim', 'gizem', 'hint-filmleri', 'kisa-film', 'komedi',
@@ -13,7 +12,7 @@ $categories = [
 $moviesArray = [];
 
 foreach ($categories as $category) {
-    for ($i = 1; $i <= 2; $i++) { // Hız ve güvenlik için her kategoriden ilk 2 sayfa
+    for ($i = 1; $i <= 2; $i++) { 
         $url = "https://www.filmmodu.one/film-tur/$category?page=$i";
         $ch = curl_init($url);
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
@@ -38,9 +37,7 @@ foreach ($categories as $category) {
                         "title" => trim($turkishName[1] ?? 'İsimsiz Film'),
                         "image" => $logo[1] ?? '',
                         "year" => $year[1] ?? '2024',
-                        // Linkteki '-' işaretlerini boşluğa çevirip baş harflerini büyütür (Örn: bilim-kurgu -> Bilim Kurgu)
-                        "category" => ucwords(str_replace('-', ' ', $category)), 
-                        "desc" => "Bu film için detaylar oynatıcı sayfasında otomatik güncellenmektedir." 
+                        "category" => ucwords(str_replace('-', ' ', $category))
                     ];
                 }
             }
@@ -48,5 +45,5 @@ foreach ($categories as $category) {
     }
 }
 file_put_contents('movies.json', json_encode(array_values($moviesArray), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
-echo "Bot başarıyla çalıştı. Tüm kategorilerden filmler çekildi.";
+echo "Bot güncellendi. Tüm kategoriler eklendi.";
 ?>

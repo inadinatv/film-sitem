@@ -5,308 +5,36 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>İnadına TV - Film Kuşağı</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;700;800&display=swap" rel="stylesheet">
     <style>
-        :root {
-            --primary: #e50914;
-            --bg: #0b0b0b;
-            --card-bg: #1a1a1a;
-            --text: #ffffff;
-            --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-        }
-
-        body {
-            font-family: 'Poppins', sans-serif;
-            background-color: var(--bg);
-            color: var(--text);
-            margin: 0;
-            overflow-x: hidden;
-        }
-
-        /* Header Tasarımı */
-        header {
-            padding: 15px 5%;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            background: rgba(17, 17, 17, 0.95);
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.8);
-            backdrop-filter: blur(10px);
-        }
-
-        .logo {
-            color: var(--primary);
-            font-weight: 800;
-            font-size: 22px;
-            text-decoration: none;
-            letter-spacing: 1px;
-        }
-
-        .search-container {
-            flex: 1;
-            margin: 0 30px;
-            position: relative;
-        }
-
-        .search-box {
-            width: 100%;
-            padding: 12px 20px;
-            border-radius: 25px;
-            border: 1px solid #333;
-            background: #222;
-            color: white;
-            outline: none;
-            transition: var(--transition);
-        }
-
-        .search-box:focus {
-            border-color: var(--primary);
-            box-shadow: 0 0 10px rgba(229, 9, 20, 0.3);
-        }
-
-        .menu-btn {
-            font-size: 26px;
-            cursor: pointer;
-            color: white;
-            transition: var(--transition);
-        }
-
-        .menu-btn:hover { color: var(--primary); }
-
-        /* Yan Menü (Sidebar) */
-        .sidebar {
-            position: fixed;
-            right: -300px;
-            top: 0;
-            width: 280px;
-            height: 100%;
-            background: #111;
-            transition: var(--transition);
-            z-index: 2000;
-            padding: 30px 20px;
-            box-shadow: -10px 0 30px rgba(0,0,0,0.7);
-        }
-
+        :root { --primary: #e50914; --bg: #0b0b0b; --card-bg: #1a1a1a; --text: #ffffff; }
+        body { font-family: sans-serif; background: var(--bg); color: var(--text); margin: 0; }
+        header { padding: 15px 5%; display: flex; align-items: center; justify-content: space-between; background: #111; position: sticky; top: 0; z-index: 1000; }
+        .logo { color: var(--primary); font-weight: 800; font-size: 22px; text-decoration: none; }
+        .search-box { flex: 1; margin: 0 20px; padding: 10px; border-radius: 20px; border: none; background: #222; color: white; }
+        .sidebar { position: fixed; right: -280px; top: 0; width: 250px; height: 100%; background: #111; transition: 0.3s; z-index: 2000; padding: 20px; box-shadow: -5px 0 15px #000; }
         .sidebar.active { right: 0; }
-
-        .sidebar h2 {
-            font-size: 20px;
-            margin-bottom: 20px;
-            border-bottom: 2px solid var(--primary);
-            padding-bottom: 10px;
-        }
-
-        .cat-list {
-            display: flex;
-            flex-direction: column;
-            gap: 5px;
-        }
-
-        .cat-item {
-            padding: 12px 15px;
-            color: #bbb;
-            text-decoration: none;
-            border-radius: 8px;
-            transition: 0.2s;
-            font-weight: 500;
-        }
-
-        .cat-item:hover, .cat-item.active {
-            background: var(--primary);
-            color: white;
-        }
-
-        /* Film Izgarası (Grid) */
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-            gap: 20px;
-            padding: 30px 5%;
-        }
-
-        .card {
-            background: var(--card-bg);
-            border-radius: 12px;
-            overflow: hidden;
-            cursor: pointer;
-            transition: var(--transition);
-            position: relative;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.3);
-        }
-
-        .card:hover {
-            transform: translateY(-10px) scale(1.03);
-            box-shadow: 0 15px 30px rgba(229, 9, 20, 0.2);
-        }
-
-        .card img {
-            width: 100%;
-            height: 240px;
-            object-fit: cover;
-        }
-
-        .card-info {
-            padding: 12px;
-            text-align: center;
-        }
-
-        .card h3 {
-            font-size: 14px;
-            margin: 0;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        .card .year-badge {
-            position: absolute;
-            top: 10px;
-            left: 10px;
-            background: rgba(0,0,0,0.7);
-            padding: 4px 8px;
-            border-radius: 5px;
-            font-size: 11px;
-            font-weight: bold;
-        }
-
-        /* Daha Fazla Göster Butonu */
-        .load-more {
-            display: block;
-            margin: 20px auto 50px;
-            padding: 14px 40px;
-            background: var(--primary);
-            color: white;
-            border: none;
-            border-radius: 30px;
-            cursor: pointer;
-            font-weight: 800;
-            font-size: 16px;
-            transition: var(--transition);
-            box-shadow: 0 5px 15px rgba(229, 9, 20, 0.4);
-        }
-
-        .load-more:hover { transform: scale(1.05); filter: brightness(1.2); }
-
-        /* Profesyonel Modal (Detay Penceresi) */
-        .modal {
-            display: none;
-            position: fixed;
-            inset: 0;
-            background: rgba(0,0,0,0.92);
-            z-index: 3000;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-            backdrop-filter: blur(8px);
-        }
-
-        .modal-content {
-            background: #181818;
-            padding: 40px 30px;
-            border-radius: 25px;
-            max-width: 550px;
-            width: 100%;
-            text-align: center;
-            position: relative;
-            box-shadow: 0 0 50px rgba(0,0,0,0.5);
-            animation: modalFade 0.4s ease;
-        }
-
-        @keyframes modalFade {
-            from { opacity: 0; transform: translateY(30px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .close-modal {
-            position: absolute;
-            top: 20px;
-            right: 25px;
-            font-size: 35px;
-            cursor: pointer;
-            color: #666;
-            transition: 0.2s;
-        }
-
-        .close-modal:hover { color: var(--primary); }
-
-        .modal-body img {
-            width: 160px;
-            border-radius: 15px;
-            margin-bottom: 20px;
-            box-shadow: 0 0 25px var(--primary);
-        }
-
-        .modal-body h2 { margin: 10px 0; font-size: 24px; }
-        
-        #mDesc {
-            font-size: 14px;
-            color: #bbb;
-            line-height: 1.6;
-            margin: 20px 0;
-            max-height: 150px;
-            overflow-y: auto;
-            text-align: justify;
-            padding: 0 10px;
-        }
-
-        .lang-group {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            margin-top: 25px;
-        }
-
-        .play-btn {
-            background: var(--primary);
-            color: white;
-            padding: 15px;
-            text-decoration: none;
-            border-radius: 12px;
-            font-weight: 700;
-            font-size: 16px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            transition: var(--transition);
-        }
-
-        .play-btn:hover { filter: brightness(1.2); transform: translateY(-2px); }
-        
-        .overlay {
-            display: none;
-            position: fixed;
-            inset: 0;
-            background: rgba(0,0,0,0.5);
-            z-index: 1500;
-        }
-
-        @media (max-width: 600px) {
-            .grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
-            header { padding: 15px 3%; }
-            .search-container { margin: 0 15px; }
-        }
+        .cat-item { display: block; padding: 12px; color: #ccc; text-decoration: none; border-bottom: 1px solid #222; }
+        .cat-item:hover { background: var(--primary); color: white; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 15px; padding: 20px; }
+        .card { background: var(--card-bg); border-radius: 10px; overflow: hidden; cursor: pointer; text-align: center; }
+        .card img { width: 100%; height: 200px; object-fit: cover; }
+        .load-more { display: block; margin: 20px auto; padding: 12px 30px; background: var(--primary); color: white; border: none; border-radius: 25px; cursor: pointer; font-weight: bold; }
+        .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 3000; align-items: center; justify-content: center; padding: 20px; }
+        .modal-content { background: #1a1a1a; padding: 30px; border-radius: 20px; max-width: 450px; width: 100%; text-align: center; }
+        .play-btn { background: var(--primary); color: white; padding: 12px; display: block; margin-top: 10px; text-decoration: none; border-radius: 8px; font-weight: bold; }
     </style>
 </head>
 <body>
 
-<div class="overlay" id="overlay" onclick="toggleMenu()"></div>
-
 <header>
-    <a href="/" class="logo">İNADINA TV</a>
-    <div class="search-container">
-        <input type="text" id="searchInput" class="search-box" placeholder="Film, tür veya yıl ara..." onkeyup="resetAndFilter()">
-    </div>
-    <div class="menu-btn" onclick="toggleMenu()"><i class="fas fa-bars"></i></div>
+    <a href="#" class="logo">İNADINA TV</a>
+    <input type="text" id="searchInput" class="search-box" placeholder="Film ara..." onkeyup="resetAndFilter()">
+    <i class="fas fa-bars" style="font-size: 24px; cursor: pointer;" onclick="toggleMenu()"></i>
 </header>
 
 <div class="sidebar" id="sidebar">
-    <div style="text-align: right; font-size: 30px; cursor: pointer; margin-bottom: 20px;" onclick="toggleMenu()">&times;</div>
-    <h2>Kategoriler</h2>
-    <div class="cat-list" id="catList"></div>
+    <h2 style="border-bottom: 2px solid var(--primary);">Kategoriler</h2>
+    <div id="catList"></div>
 </div>
 
 <div class="grid" id="movieGrid"></div>
@@ -314,134 +42,66 @@
 
 <div id="movieModal" class="modal">
     <div class="modal-content">
-        <span class="close-modal" onclick="closeModal()">&times;</span>
-        <div class="modal-body">
-            <img id="mImg" src="" alt="Afiş">
-            <h2 id="mTitle">Film Adı</h2>
-            <div id="mInfo" style="color: var(--primary); font-weight: bold; font-size: 13px;"></div>
-            <p id="mDesc"></p>
-            <div id="langButtons" class="lang-group"></div>
-        </div>
+        <span style="float: right; cursor: pointer; font-size: 30px;" onclick="closeModal()">&times;</span>
+        <img id="mImg" src="" style="width: 140px; border-radius: 10px; border: 2px solid var(--primary);">
+        <h2 id="mTitle"></h2>
+        <p id="mDesc" style="font-size: 14px; color: #ccc;"></p>
+        <div id="langButtons"></div>
     </div>
 </div>
 
 <script>
-    let allMovies = [], filteredMovies = [], visibleCount = 20;
-    let currentCategory = "Tümü";
+    let all = [], filtered = [], count = 20, currentCat = "Tümü";
 
     async function init() {
-        try {
-            const res = await fetch('movies.json');
-            allMovies = await res.json();
-            filteredMovies = allMovies;
-            renderCategories();
-            renderMovies();
-        } catch (e) {
-            document.getElementById('movieGrid').innerHTML = "<p style='text-align:center; width:100%'>Film verileri henüz yüklenmedi. Lütfen GitHub Actions'ı çalıştırın.</p>";
-        }
+        const res = await fetch('movies.json');
+        all = await res.json();
+        filtered = all;
+        renderCats(); render();
     }
 
-    function renderCategories() {
-        const cats = ["Tümü", ...new Set(allMovies.map(m => m.category).filter(Boolean))];
-        document.getElementById('catList').innerHTML = cats.map(c => 
-            `<a href="#" class="cat-item ${c === currentCategory ? 'active' : ''}" onclick="filterByCat('${c}')">${c}</a>`
-        ).join("");
+    function renderCats() {
+        const cs = ["Tümü", ...new Set(all.map(m => m.category))];
+        document.getElementById('catList').innerHTML = cs.map(c => `<a href="#" class="cat-item" onclick="filterCat('${c}')">${c}</a>`).join("");
     }
 
-    function renderMovies() {
-        const grid = document.getElementById('movieGrid');
-        const items = filteredMovies.slice(0, visibleCount);
-        
-        if(items.length === 0) {
-            grid.innerHTML = "<p style='grid-column: 1/-1; text-align:center;'>Film bulunamadı.</p>";
-            document.getElementById('loadMoreBtn').style.display = 'none';
-            return;
-        }
-
-        grid.innerHTML = items.map(f => `
-            <div class="card" onclick="openModal('${f.id}', '${f.title.replace(/'/g, "\\'")}', '${f.image}', '${f.year}', '${f.category}')">
-                <span class="year-badge">${f.year}</span>
-                <img src="${f.image}" loading="lazy">
-                <div class="card-info">
-                    <h3>${f.title}</h3>
-                </div>
+    function render() {
+        const g = document.getElementById('movieGrid');
+        g.innerHTML = filtered.slice(0, count).map(f => `
+            <div class="card" onclick="openModal('${f.id}', '${f.title.replace(/'/g, "\\'")}', '${f.image}')">
+                <img src="${f.image}">
+                <h3 style="font-size: 13px;">${f.title}</h3>
             </div>
         `).join("");
-        
-        document.getElementById('loadMoreBtn').style.display = visibleCount >= filteredMovies.length ? 'none' : 'block';
+        document.getElementById('loadMoreBtn').style.display = count >= filtered.length ? 'none' : 'block';
     }
 
-    function loadMore() {
-        visibleCount += 20;
-        renderMovies();
-    }
-    
+    function loadMore() { count += 20; render(); }
+    function filterCat(c) { currentCat = c; resetAndFilter(); toggleMenu(); }
+    function toggleMenu() { document.getElementById('sidebar').classList.toggle('active'); }
+
     function resetAndFilter() {
-        const term = document.getElementById('searchInput').value.toLowerCase();
-        filteredMovies = allMovies.filter(m => 
-            (currentCategory === "Tümü" || m.category === currentCategory) &&
-            (m.title.toLowerCase().includes(term) || m.year.toString().includes(term))
-        );
-        visibleCount = 20;
-        renderMovies();
+        const t = document.getElementById('searchInput').value.toLowerCase();
+        filtered = all.filter(m => (currentCat === "Tümü" || m.category === currentCat) && m.title.toLowerCase().includes(t));
+        count = 20; render();
     }
 
-    function filterByCat(cat) {
-        currentCategory = cat;
-        renderCategories(); // Aktif sınıfı güncellemek için
-        resetAndFilter();
-        toggleMenu();
-    }
-
-    function toggleMenu() {
-        document.getElementById('sidebar').classList.toggle('active');
-        const overlay = document.getElementById('overlay');
-        overlay.style.display = overlay.style.display === 'block' ? 'none' : 'block';
-    }
-
-    async function openModal(id, title, img, year, cat) {
-        const modal = document.getElementById('movieModal');
+    async function openModal(id, title, img) {
         document.getElementById('mTitle').innerText = title;
         document.getElementById('mImg').src = img;
-        document.getElementById('mInfo').innerText = `${year} • ${cat}`;
-        document.getElementById('mDesc').innerHTML = '<i class="fas fa-spinner fa-spin"></i> Film özeti ve dil seçenekleri getiriliyor...';
-        document.getElementById('langButtons').innerHTML = ""; 
-        modal.style.display = 'flex';
+        document.getElementById('mDesc').innerText = "Yükleniyor...";
+        document.getElementById('langButtons').innerHTML = "";
+        document.getElementById('movieModal').style.display = 'flex';
 
-        try {
-            const res = await fetch(`/api/info?id=${id}`);
-            const data = await res.json();
-            
-            document.getElementById('mDesc').innerText = data.desc || "Bu film için açıklama bulunamadı.";
-            
-            const btnContainer = document.getElementById('langButtons');
-            if(data.languages && data.languages.length > 0) {
-                data.languages.forEach(lang => {
-                    const btn = document.createElement('a');
-                    btn.href = `/api/play?id=${id}&vid=${lang.vId}`;
-                    btn.target = "_blank";
-                    btn.className = "play-btn";
-                    
-                    let icon = lang.name.toLowerCase().includes('altyaz') ? 'fa-comment-dots' : 'fa-microphone-alt';
-                    btn.innerHTML = `<i class="fas ${icon}"></i> ${lang.name.toUpperCase()} İZLE`;
-                    btnContainer.appendChild(btn);
-                });
-            } else {
-                btnContainer.innerHTML = `<a href="/api/play?id=${id}" target="_blank" class="play-btn"><i class="fas fa-play"></i> HEMEN İZLE</a>`;
-            }
-        } catch (e) {
-            document.getElementById('mDesc').innerText = "Hata: Film detayları alınamadı.";
-        }
+        const res = await fetch(`/api/info?id=${id}`);
+        const data = await res.json();
+        document.getElementById('mDesc').innerText = data.desc;
+        data.languages.forEach(l => {
+            document.getElementById('langButtons').innerHTML += `<a href="/api/play?id=${id}&vid=${l.vId}" target="_blank" class="play-btn">${l.name.toUpperCase()}</a>`;
+        });
     }
 
-    function closeModal() {
-        document.getElementById('movieModal').style.display = 'none';
-    }
-
-    window.onclick = function(e) {
-        if (e.target == document.getElementById('movieModal')) closeModal();
-    }
-
+    function closeModal() { document.getElementById('movieModal').style.display = 'none'; }
     init();
 </script>
 </body>

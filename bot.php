@@ -1,60 +1,63 @@
 <?php
 header('Content-Type: application/json; charset=utf-8');
 
-// En önemliler (Dublaj/Altyazı) en başta!
+// Linkleri sitenin tam kullandığı orjinal halleriyle ekledik
 $categories = [
-    'turkce-dublaj-filmler' => 'Türkçe Dublaj',
+    'turkce-dublaj-hd-film-izle' => 'Türkçe Dublaj',
     'altyazili-filmler' => 'Altyazılı Filmler',
-    'aksiyon' => 'Aksiyon',
-    'bilim-kurgu' => 'Bilim Kurgu',
-    'komedi' => 'Komedi',
-    'korku' => 'Korku',
-    'gerilim' => 'Gerilim',
-    'animasyon' => 'Animasyon',
-    'macera' => 'Macera',
-    'savas' => 'Savaş',
-    'tarih' => 'Tarih',
-    'suc' => 'Suç',
-    'dram' => 'Dram',
-    'aile' => 'Aile',
-    'fantastik' => 'Fantastik',
-    'gizem' => 'Gizem'
+    'film-tur/aksiyon' => 'Aksiyon',
+    'film-tur/bilim-kurgu' => 'Bilim Kurgu',
+    'film-tur/komedi' => 'Komedi',
+    'film-tur/korku' => 'Korku',
+    'film-tur/gerilim' => 'Gerilim',
+    'film-tur/animasyon' => 'Animasyon',
+    'film-tur/macera' => 'Macera',
+    'film-tur/savas' => 'Savaş',
+    'film-tur/tarih' => 'Tarih',
+    'film-tur/suc' => 'Suç',
+    'film-tur/dram' => 'Dram',
+    'film-tur/aile' => 'Aile',
+    'film-tur/fantastik' => 'Fantastik',
+    'film-tur/gizem' => 'Gizem'
 ];
 
 $moviesArray = [];
 
-foreach ($categories as $slug => $catName) {
-    // Timeout olmaması için her kategoriden ilk 1 sayfayı çekiyoruz
+foreach ($categories as $path => $catName) {
+    // Timeout (zaman aşımı) yememek için ilk etapta her kategoriden 1 sayfa çekiyoruz
     for ($i = 1; $i <= 1; $i++) { 
-        if ($slug === 'turkce-dublaj-filmler' || $slug === 'altyazili-filmler') {
-            $url = "https://www.filmmodu.one/$slug?page=$i";
-        } else {
-            $url = "https://www.filmmodu.one/film-tur/$slug?page=$i";
-        }
+        $url = "https://www.filmmodu.one/$path?page=$i";
         
         $ch = curl_init($url);
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, ['User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64)']);
+        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, [
+            'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+            'Accept: text/html,application/xhtml+xml',
+            'Accept-Language: tr-TR,tr;q=0.9'
+        ]);
         $html = curl_exec($ch);
         curl_close($ch);
 
-        preg_match_all('#<div class="col-md-2 col-xs-6 movie">(.*?)</div>\s*</div>#si', $html, $movies);
+        // YENİ NESİL KURŞUNGEÇİRMEZ REGEX: Div veya tasarım fark etmeksizin direkt filmi bulur
+        preg_match_all('#<a href="https://www.filmmodu.one/([^"]+)".*?data-src="([^"]+)".*?<span class="turkish-name">(.*?)</span>#si', $html, $matches, PREG_SET_ORDER);
 
-        if (isset($movies[1])) {
-            foreach ($movies[1] as $movieHtml) {
-                preg_match('#<a href="https://www.filmmodu.one/([^"]+)">#', $movieHtml, $linkMatch);
-                preg_match('#data-src="(.*?)"#', $movieHtml, $logo);
-                preg_match('#<span class="turkish-name">(.*?)</span>#', $movieHtml, $turkishName);
-                preg_match('#<p class="top">(\d{4})#', $movieHtml, $year);
-
-                $id = isset($linkMatch[1]) ? trim($linkMatch[1], '/') : '';
+        if (count($matches) > 0) {
+            foreach ($matches as $m) {
+                $id = trim($m[1], '/');
                 if ($id && !isset($moviesArray[$id])) {
+                    
+                    // Yılı ayrı çekiyoruz (yoksa 2024 varsayacak)
+                    preg_match('#<a href="https://www.filmmodu.one/' . preg_quote($id) . '".*?<p class="top">(\d{4})#si', $html, $yearMatch);
+                    $year = isset($yearMatch[1]) ? $yearMatch[1] : '2024';
+
                     $moviesArray[$id] = [
                         "id" => $id,
-                        "title" => trim($turkishName[1] ?? 'İsimsiz Film'),
-                        "image" => $logo[1] ?? '',
-                        "year" => $year[1] ?? '2024',
+                        // HTML etiketlerini (varsa) temizle
+                        "title" => trim(strip_tags($m[3])), 
+                        "image" => trim($m[2]),
+                        "year" => $year,
                         "category" => $catName
                     ];
                 }
@@ -62,6 +65,9 @@ foreach ($categories as $slug => $catName) {
         }
     }
 }
+
 file_put_contents('movies.json', json_encode(array_values($moviesArray), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
-echo "Bot çalıştı, tüm ana kategoriler başarıyla çekildi.";
+
+// Ekrana kaç film çektiğini yazdıracak (GitHub Actions loglarında görebilmen için)
+echo "Bot kusursuz çalıştı! Toplam çekilen film sayısı: " . count($moviesArray);
 ?>

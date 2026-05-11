@@ -1,19 +1,49 @@
 <?php
 header('Content-Type: application/json; charset=utf-8');
 
+// Türkçe Dublaj ve Altyazılı dahil TÜM kategorileri isimlendirerek ekledik
 $categories = [
-    '4k', 'aile', 'aksiyon', 'animasyon', 'belgesel', 'bilim-kurgu', 'dram',
-    'fantastik', 'gerilim', 'gizem', 'hint-filmleri', 'kisa-film', 'komedi',
-    'korku', 'kult-filmler', 'macera', 'muzik', 'oscar-odullu-filmler',
-    'romantik', 'savas', 'stand-up', 'suc', 'tarih', 'tavsiye-filmler',
-    'tv-film', 'vahsi-bati'
+    'turkce-dublaj-hd-film-izle' => 'Türkçe Dublaj',
+    'altyazili-filmler' => 'Altyazılı Filmler',
+    '4k' => '4K Kalite',
+    'aile' => 'Aile',
+    'aksiyon' => 'Aksiyon',
+    'animasyon' => 'Animasyon',
+    'belgesel' => 'Belgesel',
+    'bilim-kurgu' => 'Bilim Kurgu',
+    'dram' => 'Dram',
+    'fantastik' => 'Fantastik',
+    'gerilim' => 'Gerilim',
+    'gizem' => 'Gizem',
+    'hint-filmleri' => 'Hint Filmleri',
+    'kisa-film' => 'Kısa Film',
+    'komedi' => 'Komedi',
+    'korku' => 'Korku',
+    'kult-filmler' => 'Kült Filmler',
+    'macera' => 'Macera',
+    'muzik' => 'Müzik',
+    'oscar-odullu-filmler' => 'Oscar Ödüllü',
+    'romantik' => 'Romantik',
+    'savas' => 'Savaş',
+    'stand-up' => 'Stand Up',
+    'suc' => 'Suç',
+    'tarih' => 'Tarih',
+    'tavsiye-filmler' => 'Tavsiye Filmler',
+    'tv-film' => 'TV Film',
+    'vahsi-bati' => 'Vahşi Batı'
 ];
 
 $moviesArray = [];
 
-foreach ($categories as $category) {
+foreach ($categories as $slug => $catName) {
     for ($i = 1; $i <= 2; $i++) { 
-        $url = "https://www.filmmodu.one/film-tur/$category?page=$i";
+        // Dublaj ve Altyazı ana dizinde, diğerleri film-tur dizininde
+        if ($slug === 'turkce-dublaj-hd-film-izle' || $slug === 'altyazili-filmler') {
+            $url = "https://www.filmmodu.one/$slug?page=$i";
+        } else {
+            $url = "https://www.filmmodu.one/film-tur/$slug?page=$i";
+        }
+        
         $ch = curl_init($url);
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -37,7 +67,7 @@ foreach ($categories as $category) {
                         "title" => trim($turkishName[1] ?? 'İsimsiz Film'),
                         "image" => $logo[1] ?? '',
                         "year" => $year[1] ?? '2024',
-                        "category" => ucwords(str_replace('-', ' ', $category))
+                        "category" => $catName
                     ];
                 }
             }
@@ -45,5 +75,5 @@ foreach ($categories as $category) {
     }
 }
 file_put_contents('movies.json', json_encode(array_values($moviesArray), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
-echo "Bot güncellendi. Tüm kategoriler eklendi.";
+echo "Bot güncellendi. Türkçe Dublaj dahil tüm filmler başarıyla çekildi.";
 ?>

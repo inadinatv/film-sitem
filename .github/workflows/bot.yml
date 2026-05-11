@@ -1,0 +1,22 @@
+name: Botu Calistir
+on:
+  schedule:
+    - cron: '0 3 * * *'
+  workflow_dispatch:
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: PHP Kurulumu
+        uses: shivammathur/setup-php@v2
+        with: { php-version: '8.2' }
+      - name: Botu calistir
+        run: php bot.php
+      - name: Github'a Kaydet
+        run: |
+          git config --local user.email "bot@github.com"
+          git config --local user.name "Film Botu"
+          git add movies.json
+          git commit -m "Filmler guncellendi" || echo "Degisiklik yok"
+          git push

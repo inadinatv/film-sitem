@@ -1,24 +1,5 @@
 export default async function handler(req, res) {
-  const { id, vid, lang, trackUrl } = req.query;
-
-  // 1. OTOMATİK ALTYAZI ÇEVİRİCİ PROXY (SRT'yi VTT'ye Dönüştürür)
-  if (trackUrl) {
-      try {
-          const trkRes = await fetch(trackUrl, {
-              headers: { "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)", "Referer": "https://www.filmmodu.one/" }
-          });
-          let trkTxt = await trkRes.text();
-          
-          // Eğer dosya SRT formatındaysa (virgül içeriyorsa), onu kusursuz VTT formatına (nokta) çeviririz!
-          if (!trkTxt.includes('WEBVTT')) {
-              trkTxt = "WEBVTT\n\n" + trkTxt.replace(/(\d{2}:\d{2}:\d{2}),(\d{3})/g, '$1.$2');
-          }
-          
-          res.setHeader('Content-Type', 'text/vtt; charset=utf-8');
-          res.setHeader('Access-Control-Allow-Origin', '*');
-          return res.status(200).send(trkTxt);
-      } catch(e) { return res.status(500).send(""); }
-  }
+  const { id, vid, lang } = req.query;
 
   if (!id) return res.status(400).send("Film ID eksik.");
 
@@ -39,7 +20,6 @@ export default async function handler(req, res) {
     
     let data = null;
     
-    // Dil Seçici Motor
     for (let t of typesToTry) {
         let url = `https://www.filmmodu.one/get-source?movie_id=${vId}`;
         if (t) url += `&type=${t}`;
@@ -64,31 +44,51 @@ export default async function handler(req, res) {
     }
 
     if (!data || !data.sources || data.sources.length === 0) {
-        return res.status(404).send("Sunucu kaynak vermedi.");
+        return res.status(404).send("Sunucu kaynak vermedi. Site koruması engellemiş olabilir.");
     }
     
     const videoUrl = data.sources[data.sources.length - 1].src;
 
-    // Altyazı Linklerini Toplama
+    // YENİ SİSTEM: ALTYAZIYI DOĞRUDAN HTML İÇİNE GÖMME (BASE64)
     let tracks = "";
     if (data.tracks) {
-      data.tracks.forEach(t => {
+      const trackPromises = data.tracks.map(async (t) => {
         if (t.kind === 'captions' || t.kind === 'subtitles') {
           let trackFile = t.file || t.src;
-          
-          // LİNK DÜZELTİCİ (Bozuk veya eksik linkleri tamir eder)
           if (trackFile) {
-              if (trackFile.startsWith('//')) {
-                  trackFile = 'https:' + trackFile;
-              } else if (!trackFile.startsWith('http')) {
-                  trackFile = 'https://www.filmmodu.one' + trackFile;
-              }
+              if (trackFile.startsWith('//')) trackFile = 'https:' + trackFile;
+              else if (!trackFile.startsWith('http')) trackFile = 'https://www.filmmodu.one' + trackFile;
               
-              const proxyUrl = `/api/play?trackUrl=${encodeURIComponent(trackFile)}`;
-              tracks += `<track kind="captions" label="${t.label || 'Türkçe'}" src="${proxyUrl}" srclang="tr" default />\n`;
+              try {
+                  // Altyazıyı o an sunucudan indiriyoruz
+                  const trkRes = await fetch(trackFile, {
+                      headers: { "User-Agent": ua, "Referer": "https://www.filmmodu.one/", "Cookie": cookies || "" }
+                  });
+                  let trkTxt = await trkRes.text();
+                  
+                  // Hatalı virgülleri noktaya çevirip düzeltiyoruz
+                  trkTxt = trkTxt.replace(/(\d{2}:\d{2}:\d{2}),(\d{3})/g, '$1.$2');
+                  
+                  // Dosyayı VTT formatına zorluyoruz
+                  if (!trkTxt.includes('WEBVTT')) {
+                      trkTxt = "WEBVTT\n\n" + trkTxt;
+                  }
+
+                  // Metni Base64 şifrelemesine çevirerek doğrudan koda gömüyoruz (Engellenemez)
+                  const base64Vtt = Buffer.from(trkTxt).toString('base64');
+                  const dataUrl = `data:text/vtt;base64,${base64Vtt}`;
+
+                  return `<track kind="captions" label="${t.label || 'Türkçe'}" src="${dataUrl}" srclang="tr" default />\n`;
+              } catch(e) {
+                  return ""; 
+              }
           }
         }
+        return "";
       });
+      
+      const trackResults = await Promise.all(trackPromises);
+      tracks = trackResults.join("");
     }
 
     res.setHeader('Content-Type', 'text/html; charset=utf-8');

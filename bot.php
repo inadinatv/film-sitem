@@ -4,7 +4,6 @@ ini_set('memory_limit', '-1');
 
 header('Content-Type: application/json; charset=utf-8');
 
-// EKSİKSİZ FULL KATEGORİ LİSTESİ
 $categories = [
     'turkce-dublaj-hd-film-izle' => 'Türkçe Dublaj',
     'altyazili-filmler' => 'Altyazılı Filmler',
@@ -39,8 +38,7 @@ $categories = [
 $moviesArray = [];
 
 foreach ($categories as $path => $catName) {
-    // SINIRSIZ GÜÇ: Her kategori için 500 sayfaya kadar tarar
-    for ($i = 1; $i <= 500; $i++) { 
+    for ($i = 1; $i <= 3; $i++) { 
         $url = "https://www.filmmodu.one/$path?page=$i";
         
         $ch = curl_init($url);
@@ -77,11 +75,12 @@ foreach ($categories as $path => $catName) {
                 ];
             }
         }
-        usleep(150000); // Sunucuyu yormamak için kısa bir mola
+        
+        usleep(100000); 
     }
 }
 
 file_put_contents('movies.json', json_encode(array_values($moviesArray), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
 
-echo "Sınırsız Bot kusursuz çalıştı! Toplam çekilen film sayısı: " . count($moviesArray);
+echo "Bot çok hızlı çalıştı! Toplam çekilen film sayısı: " . count($moviesArray);
 ?>

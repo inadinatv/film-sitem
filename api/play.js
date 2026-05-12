@@ -76,14 +76,22 @@ export default async function handler(req, res) {
     <!DOCTYPE html>
     <html lang="tr">
     <head>
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
         <title>İnadına TV Player</title>
         <link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css" />
         <style>
-            body { margin:0; background:#000; overflow:hidden; } 
-            video { width:100vw; height:100vh; object-fit: cover !important; } 
+            /* Mobil tarayıcı dostu tam ekran (100dvh butonların kaybolmasını önler) */
+            body, html { margin:0; padding:0; background:#000; overflow:hidden; width:100%; height:100vh; height:100dvh; } 
+            
+            .plyr { width: 100%; height: 100%; }
+            
+            /* Normal görünümde video sığdırılır, kesilme olmaz */
+            video { width:100%; height:100%; object-fit: contain !important; } 
+            
+            /* Sadece tam ekrana geçildiğinde siyah barları yok et (Sinema Modu) */
+            .plyr--fullscreen-active video { object-fit: cover !important; }
+            
             :root { --plyr-color-main: #e50914; }
-            .plyr__video-wrapper { width: 100vw; height: 100vh; }
         </style>
     </head>
     <body>
@@ -135,6 +143,7 @@ export default async function handler(req, res) {
                 function setupCinemaMode(plyrPlayer) {
                     let firstPlay = true;
                     
+                    // 1. Oynatıldığında otomatik tam ekran yap
                     plyrPlayer.on('play', () => {
                         if (firstPlay && !plyrPlayer.fullscreen.active) {
                             plyrPlayer.fullscreen.enter().catch(err => console.log("Tam ekran hatası:", err));
@@ -142,9 +151,17 @@ export default async function handler(req, res) {
                         }
                     });
 
+                    // 2. Tam ekrana girildiğinde zorla yatay yap
                     plyrPlayer.on('enterfullscreen', () => {
                         if (screen.orientation && screen.orientation.lock) {
                             screen.orientation.lock('landscape').catch(err => console.log("Yan ekran kilidi desteklenmiyor.", err));
+                        }
+                    });
+
+                    // 3. YENİ EKLENDİ: Tam ekrandan çıkıldığında kilidi çöz ve normale dön
+                    plyrPlayer.on('exitfullscreen', () => {
+                        if (screen.orientation && screen.orientation.unlock) {
+                            screen.orientation.unlock();
                         }
                     });
                 }

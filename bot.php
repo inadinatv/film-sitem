@@ -5,29 +5,42 @@ ini_set('memory_limit', '-1');
 
 header('Content-Type: application/json; charset=utf-8');
 
+// EKRAN GÖRÜNTÜSÜNDEKİ EKSİKSİZ FULL KATEGORİ LİSTESİ
 $categories = [
     'turkce-dublaj-hd-film-izle' => 'Türkçe Dublaj',
     'altyazili-filmler' => 'Altyazılı Filmler',
+    'film-tur/4k' => '4K',
+    'film-tur/aile' => 'Aile',
     'film-tur/aksiyon' => 'Aksiyon',
-    'film-tur/bilim-kurgu' => 'Bilim Kurgu',
+    'film-tur/animasyon' => 'Animasyon',
+    'film-tur/belgesel' => 'Belgesel',
+    'film-tur/bilim-kurgu' => 'Bilim-Kurgu',
+    'film-tur/dram' => 'Dram',
+    'film-tur/fantastik' => 'Fantastik',
+    'film-tur/gerilim' => 'Gerilim',
+    'film-tur/gizem' => 'Gizem',
+    'film-tur/hint-filmleri' => 'Hint Filmleri',
+    'film-tur/kisa-film' => 'Kısa Film',
     'film-tur/komedi' => 'Komedi',
     'film-tur/korku' => 'Korku',
-    'film-tur/gerilim' => 'Gerilim',
-    'film-tur/animasyon' => 'Animasyon',
+    'film-tur/kult-filmler' => 'Kült Filmler',
     'film-tur/macera' => 'Macera',
+    'film-tur/muzik' => 'Müzik',
+    'film-tur/oscar-odullu-filmler' => 'Oscar Ödüllü Filmler',
+    'film-tur/romantik' => 'Romantik',
     'film-tur/savas' => 'Savaş',
-    'film-tur/tarih' => 'Tarih',
+    'film-tur/stand-up' => 'Stand Up',
     'film-tur/suc' => 'Suç',
-    'film-tur/dram' => 'Dram',
-    'film-tur/aile' => 'Aile',
-    'film-tur/fantastik' => 'Fantastik',
-    'film-tur/gizem' => 'Gizem'
+    'film-tur/tarih' => 'Tarih',
+    'film-tur/tavsiye-filmler' => 'Tavsiye Filmler',
+    'film-tur/tv-film' => 'TV filmi',
+    'film-tur/vahsi-bati' => 'Vahşi Batı'
 ];
 
 $moviesArray = [];
 
 foreach ($categories as $path => $catName) {
-    // SINIR KALKTI: Artık 50 değil, her kategori için 500 sayfaya kadar tarayacak!
+    // 500 sayfaya kadar derinlemesine tarama
     for ($i = 1; $i <= 500; $i++) { 
         $url = "https://www.filmmodu.one/$path?page=$i";
         
@@ -45,7 +58,7 @@ foreach ($categories as $path => $catName) {
 
         preg_match_all('#<a href="https://www.filmmodu.one/([^"]+)".*?data-src="([^"]+)".*?<span class="turkish-name">(.*?)</span>#si', $html, $matches, PREG_SET_ORDER);
 
-        // Sayfa boşsa (filmler bittiyse) direkt diğer kategoriye zıpla
+        // Sayfa boşsa diğer kategoriye geç
         if (count($matches) === 0) {
             break; 
         }

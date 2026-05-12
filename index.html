@@ -25,9 +25,7 @@
         }
 
         .header-left { display: flex; align-items: center; gap: 15px; }
-
         #menu-btn { background: transparent; border: none; color: #fff; font-size: 26px; cursor: pointer; padding: 0; display: flex; align-items: center; }
-
         #logo-container { display: flex; align-items: center; gap: 8px; }
         #inadina-logo {
             display: flex; align-items: center; justify-content: center;
@@ -47,10 +45,7 @@
         .header-right { display: flex; align-items: center; }
         #search-container { display: flex; align-items: center; background: transparent; border-radius: 20px; transition: all 0.4s ease; }
         #search-container.active { background: rgba(255,255,255,0.1); }
-        #search-input {
-            width: 0; opacity: 0; border: none; background: transparent; color: #fff;
-            font-size: 14px; padding: 0; transition: all 0.4s ease; outline: none;
-        }
+        #search-input { width: 0; opacity: 0; border: none; background: transparent; color: #fff; font-size: 14px; padding: 0; transition: all 0.4s ease; outline: none; }
         #search-input.active { width: 130px; opacity: 1; padding: 5px 10px; }
         #search-btn { background: transparent; border: none; color: #fff; font-size: 18px; cursor: pointer; padding: 8px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
 
@@ -58,8 +53,7 @@
         #side-menu {
             position: fixed; top: 0; left: -260px; width: 260px; height: 100vh;
             background: #111; box-shadow: 5px 0 15px rgba(0,0,0,0.7); z-index: 2000;
-            transition: left 0.3s ease; display: flex; flex-direction: column;
-            overflow-y: auto; /* Çok kategori olduğu için kaydırma özelliği eklendi */
+            transition: left 0.3s ease; display: flex; flex-direction: column; overflow-y: auto;
         }
         #side-menu.open { left: 0; }
         #menu-header { padding: 20px; border-bottom: 1px solid #333; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; background: #111; z-index: 10; }
@@ -68,7 +62,6 @@
         .menu-items { list-style: none; padding: 0; margin: 0; }
         .menu-items li { padding: 15px 20px; border-bottom: 1px solid #222; color: #ccc; cursor: pointer; transition: background 0.2s; font-size: 14px; }
         .menu-items li:hover { background: rgba(229, 9, 20, 0.2); color: #fff; border-left: 4px solid var(--inadina-red); }
-
         #menu-overlay { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.7); z-index: 1500; display: none; opacity: 0; transition: opacity 0.3s ease; }
         #menu-overlay.show { display: block; opacity: 1; }
 
@@ -84,13 +77,58 @@
         .movie-meta { color: #b3b3b3; font-size: 10px; font-weight: 500; margin: 0; }
 
         #status-msg { text-align: center; margin-top: 100px; color: #888; font-size: 14px; }
-
-        /* DAHA FAZLA BUTONU */
         #load-more-container { text-align: center; padding: 20px; display: none; }
         #load-more-btn { background: var(--inadina-red); color: #fff; border: none; padding: 12px 30px; border-radius: 25px; font-size: 15px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 10px rgba(229, 9, 20, 0.4); transition: background 0.3s; }
         #load-more-btn:active { background: #b20710; transform: scale(0.95); }
 
-        /* PLAYER */
+        /* === YENİ EKLENEN: FİLM BİLGİ EKRANI (MODAL) === */
+        #details-overlay {
+            display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); /* Buzlu cam efekti */
+            z-index: 2500; animation: fadeIn 0.3s ease;
+        }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        #details-modal {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            width: 90%; max-width: 380px; background: #1a1a1a; border-radius: 20px;
+            overflow: hidden; box-shadow: 0 15px 40px rgba(0,0,0,0.9);
+            border: 1px solid #333; display: flex; flex-direction: column;
+            animation: slideUp 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        @keyframes slideUp { from { transform: translate(-50%, -40%); opacity: 0; } to { transform: translate(-50%, -50%); opacity: 1; } }
+
+        .details-poster-wrap { position: relative; width: 100%; height: 220px; background: #000; }
+        .details-poster-wrap img { width: 100%; height: 100%; object-fit: cover; opacity: 0.8; }
+        .details-poster-wrap::after {
+            content: ''; position: absolute; bottom: 0; left: 0; width: 100%; height: 100px;
+            background: linear-gradient(to top, #1a1a1a, transparent);
+        }
+        .close-details-btn {
+            position: absolute; top: 15px; right: 15px; width: 35px; height: 35px;
+            background: rgba(0,0,0,0.6); color: #fff; border: none; border-radius: 50%;
+            font-size: 20px; display: flex; align-items: center; justify-content: center;
+            cursor: pointer; z-index: 10; backdrop-filter: blur(4px);
+        }
+
+        .details-content { padding: 0 20px 25px 20px; text-align: center; margin-top: -30px; position: relative; z-index: 5; }
+        .details-title { margin: 0 0 8px 0; font-size: 24px; color: #fff; font-weight: 800; text-shadow: 0 2px 4px rgba(0,0,0,0.8); }
+        .details-meta { color: #aaa; font-size: 13px; margin-bottom: 25px; display: flex; justify-content: center; gap: 10px; align-items: center; }
+        .details-meta span { background: #333; padding: 4px 10px; border-radius: 12px; font-weight: 600; color: #ddd; }
+
+        .details-actions { display: flex; flex-direction: column; gap: 12px; }
+        .btn-action {
+            width: 100%; padding: 14px; border-radius: 12px; font-size: 15px; font-weight: bold;
+            display: flex; align-items: center; justify-content: center; gap: 10px;
+            cursor: pointer; transition: all 0.2s; border: none;
+        }
+        .btn-dub { background: var(--inadina-red); color: #fff; box-shadow: 0 4px 15px rgba(229, 9, 20, 0.4); }
+        .btn-dub:active { background: #b20710; transform: scale(0.98); }
+        
+        .btn-sub { background: transparent; color: #fff; border: 2px solid #555; }
+        .btn-sub:active { background: #333; transform: scale(0.98); }
+
+        /* PLAYER MODAL */
         #player-modal { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #000; z-index: 3000; }
         #close-player { position: absolute; top: 20px; right: 20px; width: 40px; height: 40px; background: rgba(0,0,0,0.6); color: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px; cursor: pointer; z-index: 3010; }
         #player-iframe { width: 100%; height: 100%; border: none; }
@@ -161,6 +199,26 @@
         <button id="load-more-btn">Daha Fazla Göster</button>
     </div>
 
+    <div id="details-overlay">
+        <div id="details-modal">
+            <button class="close-details-btn" id="close-details">&times;</button>
+            <div class="details-poster-wrap">
+                <img id="details-img" src="" alt="">
+            </div>
+            <div class="details-content">
+                <h2 class="details-title" id="details-title">Film Adı</h2>
+                <div class="details-meta">
+                    <span id="details-year">2024</span>
+                    <span id="details-category">Kategori</span>
+                </div>
+                <div class="details-actions">
+                    <button class="btn-action btn-dub" id="btn-play-tr">🎙️ Türkçe Dublaj İzle</button>
+                    <button class="btn-action btn-sub" id="btn-play-en">📝 Altyazılı İzle</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div id="player-modal">
         <div id="close-player">&times;</div>
         <iframe id="player-iframe" src="" allowfullscreen></iframe>
@@ -169,7 +227,7 @@
     <script>
         let allMovies = []; 
         let currentFilteredMovies = []; 
-        let displayLimit = 100; // Başlangıçta 100 film gösterilecek
+        let displayLimit = 100; 
 
         document.addEventListener('DOMContentLoaded', () => {
             const statusMsg = document.getElementById('status-msg');
@@ -182,14 +240,16 @@
             const searchContainer = document.getElementById('search-container');
             const loadMoreBtn = document.getElementById('load-more-btn');
             const loadMoreContainer = document.getElementById('load-more-container');
+            
+            // Bilgi Ekranı Elementleri
+            const detailsOverlay = document.getElementById('details-overlay');
+            const closeDetailsBtn = document.getElementById('close-details');
 
-            // Menü İşlemleri
             menuBtn.onclick = () => { sideMenu.classList.add('open'); menuOverlay.classList.add('show'); };
             const closeMenu = () => { sideMenu.classList.remove('open'); menuOverlay.classList.remove('show'); };
             closeMenuBtn.onclick = closeMenu;
             menuOverlay.onclick = closeMenu;
 
-            // Arama İşlemleri
             searchBtn.onclick = () => {
                 searchContainer.classList.toggle('active');
                 searchInput.classList.toggle('active');
@@ -210,12 +270,10 @@
                 applyFilterAndRender(filtered);
             });
 
-            // JSON'dan Veri Çekme
             async function loadMovies() {
                 try {
                     const response = await fetch('/movies.json');
                     if (!response.ok) throw new Error("Dosya bulunamadı");
-                    
                     allMovies = await response.json();
                     statusMsg.style.display = 'none';
                     applyFilterAndRender(allMovies);
@@ -225,11 +283,14 @@
             }
             loadMovies();
 
-            // Daha Fazla Butonu İşlevi
             loadMoreBtn.onclick = () => {
-                displayLimit += 100; // 100 film daha ekle
+                displayLimit += 100; 
                 renderGrid();
             };
+
+            // Bilgi Ekranını Kapatma
+            closeDetailsBtn.onclick = () => { detailsOverlay.style.display = 'none'; };
+            detailsOverlay.onclick = (e) => { if(e.target === detailsOverlay) detailsOverlay.style.display = 'none'; };
 
             // Player Kapatma
             const modal = document.getElementById('player-modal');
@@ -240,14 +301,12 @@
             };
         });
 
-        // Filtreyi Uygula ve Limiti Sıfırla
         function applyFilterAndRender(moviesList) {
             currentFilteredMovies = moviesList;
-            displayLimit = 100; // Yeni aramada/kategoride başa dön
+            displayLimit = 100; 
             renderGrid();
         }
 
-        // Filmleri Ekrana Çizen Motor (Sayfalama Destekli)
         function renderGrid() {
             const grid = document.getElementById('movies-grid');
             const loadMoreContainer = document.getElementById('load-more-container');
@@ -260,7 +319,6 @@
                 return;
             }
 
-            // Sadece limit kadarını (0'dan displayLimit'e) ekrana bas
             const moviesToShow = currentFilteredMovies.slice(0, displayLimit);
 
             moviesToShow.forEach(movie => {
@@ -279,15 +337,23 @@
                     </div>
                 `;
                 
+                // YENİ SİSTEM: Tıklayınca player yerine modern bilgi ekranını (Modal) aç
                 card.onclick = () => {
-                    document.getElementById('player-iframe').src = `/api/play?id=${movie.id}`;
-                    document.getElementById('player-modal').style.display = 'block';
+                    document.getElementById('details-title').innerText = movie.title;
+                    document.getElementById('details-year').innerText = movie.year;
+                    document.getElementById('details-category').innerText = movie.category || 'Film';
+                    document.getElementById('details-img').src = movie.image;
+
+                    // Dil seçimi butonlarına görevlerini atıyoruz (lang=tr veya lang=en)
+                    document.getElementById('btn-play-tr').onclick = () => openPlayer(movie.id, 'tr');
+                    document.getElementById('btn-play-en').onclick = () => openPlayer(movie.id, 'en');
+
+                    document.getElementById('details-overlay').style.display = 'block';
                 };
                 
                 grid.appendChild(card);
             });
 
-            // "Daha Fazla" butonunu gizle veya göster
             if (currentFilteredMovies.length > displayLimit) {
                 loadMoreContainer.style.display = 'block';
             } else {
@@ -295,7 +361,13 @@
             }
         }
 
-        // Yan Menüden Kategori Filtreleme
+        // Seçilen dil parametresiyle player'ı tetikleyen fonksiyon
+        function openPlayer(id, lang) {
+            document.getElementById('details-overlay').style.display = 'none'; // Bilgi ekranını gizle
+            document.getElementById('player-iframe').src = `/api/play?id=${id}&lang=${lang}`; // Videoyu çek
+            document.getElementById('player-modal').style.display = 'block'; // Oynatıcıyı aç
+        }
+
         window.filterCategory = function(catName) {
             document.getElementById('side-menu').classList.remove('open');
             document.getElementById('menu-overlay').classList.remove('show');

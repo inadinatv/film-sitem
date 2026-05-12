@@ -1,55 +1,6 @@
 export default async function handler(req, res) {
-  const { id, vid, lang, trackUrl } = req.query;
+  const { id, vid, lang } = req.query;
 
-  // ==========================================
-  // 1. KUSURSUZ ALTYAZI ÇEVİRİCİ MOTOR (PROXY)
-  // ==========================================
-  if (trackUrl) {
-      try {
-          const fetchUrl = decodeURIComponent(trackUrl);
-          const trkRes = await fetch(fetchUrl, {
-              headers: {
-                  "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
-                  "Referer": "https://www.filmmodu.one/",
-                  "Accept": "*/*"
-              }
-          });
-          
-          // Eğer dosya yoksa, player bozulmasın diye ekrana hata mesajı yazdırıyoruz
-          if (!trkRes.ok) {
-              res.setHeader('Content-Type', 'text/vtt; charset=utf-8');
-              return res.status(200).send("WEBVTT\n\n1\n00:00:00.000 --> 00:00:10.000\nAltyazı dosyası bulunamadı (404).");
-          }
-
-          let text = await trkRes.text();
-          
-          // Cloudflare engeline takılırsak HTML döner, bunu da ekrana yansıtıyoruz
-          if (text.trim().toLowerCase().startsWith('<!doctype') || text.trim().toLowerCase().startsWith('<html')) {
-              res.setHeader('Content-Type', 'text/vtt; charset=utf-8');
-              return res.status(200).send("WEBVTT\n\n1\n00:00:00.000 --> 00:00:10.000\nFilmmodu sunucusu altyazı indirmemizi geçici olarak engelledi.");
-          }
-
-          // SRT'yi VTT'ye hatasız çeviren işlem
-          text = text.replace(/^\uFEFF/, ''); 
-          text = text.replace(/\r\n/g, '\n'); 
-          text = text.replace(/(\d{2}:\d{2}:\d{2}),(\d{3})/g, '$1.$2'); 
-          
-          if (!text.includes('WEBVTT')) {
-              text = "WEBVTT\n\n" + text;
-          }
-
-          res.setHeader('Content-Type', 'text/vtt; charset=utf-8');
-          res.setHeader('Access-Control-Allow-Origin', '*');
-          return res.status(200).send(text);
-      } catch(e) { 
-          res.setHeader('Content-Type', 'text/vtt; charset=utf-8');
-          return res.status(200).send("WEBVTT\n\n1\n00:00:00.000 --> 00:00:10.000\nAltyazı motoru hatası: " + e.message);
-      }
-  }
-
-  // ==========================================
-  // 2. VİDEO VE DİL ÇEKME İŞLEMİ
-  // ==========================================
   if (!id) return res.status(400).send("Film ID eksik.");
 
   try {
@@ -61,7 +12,7 @@ export default async function handler(req, res) {
     const vId = vid || (html.match(/videoId\s*=\s*'([^']+)'/) || html.match(/data-movie-id="([^"]+)"/) || [])[1];
     const csrf = (html.match(/"csrf-token" content="(.*?)"/) || [])[1];
 
-    if (!vId || !csrf) return res.status(500).send("Video ID bulunamadı.");
+    if (!vId || !csrf) return res.status(500).send("Video ID bulunamadı. Sayfayı yenileyin.");
 
     const targetLang = lang === 'en' ? 'en' : 'tr';
     const fallbackLang = targetLang === 'tr' ? 'en' : 'tr';
@@ -87,29 +38,43 @@ export default async function handler(req, res) {
     if (!data || !data.sources || data.sources.length === 0) return res.status(404).send("Sunucu kaynak vermedi.");
     const videoUrl = data.sources[data.sources.length - 1].src;
 
-    // ==========================================
-    // 3. TRACK (ALTYAZI) ETİKETLERİNİ OLUŞTURMA
-    // ==========================================
-    let tracksHtml = "";
+    // YENİ SİSTEM: Altyazıyı SUNUCUDA indirip HTML'in içine gömüyoruz!
+    let embeddedTracks = [];
     if (data.tracks && Array.isArray(data.tracks)) {
-        data.tracks.forEach((t, index) => {
+        for (let t of data.tracks) {
             let trackFile = t.file || t.src;
             if (trackFile && (t.kind === 'captions' || t.kind === 'subtitles' || trackFile.includes('.srt') || trackFile.includes('.vtt'))) {
                 if (trackFile.startsWith('//')) trackFile = 'https:' + trackFile;
                 else if (!trackFile.startsWith('http')) trackFile = 'https://www.filmmodu.one' + trackFile;
-                
-                // Yukarıda yazdığımız 1 numaralı proxy motoruna yönlendiriyoruz
-                const proxyUrl = `/api/play?trackUrl=${encodeURIComponent(trackFile)}`;
-                const isDefault = index === 0 ? "default" : "";
-                
-                tracksHtml += `<track kind="captions" label="${t.label || 'Türkçe'}" src="${proxyUrl}" srclang="tr" ${isDefault} />\n`;
+
+                try {
+                    // SIRRIMIZ BURADA: Çerezleri (cookies) altyazı isteğine de ekliyoruz!
+                    const subRes = await fetch(trackFile, {
+                        headers: { "cookie": cookies, "user-agent": ua, "referer": `https://www.filmmodu.one/${id}` }
+                    });
+
+                    if (subRes.ok) {
+                        let text = await subRes.text();
+                        // SRT'den VTT'ye kusursuz çeviri
+                        text = text.replace(/^\uFEFF/, '');
+                        text = text.replace(/\r\n/g, '\n');
+                        text = text.replace(/(\d{2}:\d{2}:\d{2}),(\d{3})/g, '$1.$2');
+
+                        if (!text.includes('WEBVTT')) text = "WEBVTT\n\n" + text;
+
+                        // Türkçe karakterler bozulmasın diye özel kodlama yapıyoruz
+                        embeddedTracks.push({
+                            label: t.label || 'Türkçe',
+                            data: encodeURIComponent(text)
+                        });
+                    }
+                } catch (err) {
+                    console.error("Altyazı çekme hatası:", err);
+                }
             }
-        });
+        }
     }
 
-    // ==========================================
-    // 4. HTML ÇIKTISI (PLAYER)
-    // ==========================================
     res.setHeader('Content-Type', 'text/html; charset=utf-8');
     res.send(`
     <!DOCTYPE html>
@@ -121,32 +86,52 @@ export default async function handler(req, res) {
         <style>body { margin:0; background:#000; overflow:hidden; } video { width:100vw; height:100vh; } :root { --plyr-color-main: #e50914; }</style>
     </head>
     <body>
-        <video id="player" playsinline controls crossorigin="anonymous">
-            ${tracksHtml}
-        </video>
+        <video id="player" playsinline controls crossorigin="anonymous"></video>
 
         <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
         <script src="https://cdn.plyr.io/3.7.8/plyr.polyfilled.js"></script>
         <script>
-            const video = document.getElementById('player');
-            const source = '${videoUrl}';
-            
-            const opts = { 
-                captions: { active: true, language: 'tr', update: true },
-                seekTime: 10
-            };
+            document.addEventListener('DOMContentLoaded', () => {
+                const video = document.getElementById('player');
+                
+                // Vercel'in bize gönderdiği hazır ve temizlenmiş altyazılar
+                const embeddedTracks = ${JSON.stringify(embeddedTracks)};
 
-            if (Hls.isSupported() && source.includes('.m3u8')) {
-                const hls = new Hls(); 
-                hls.loadSource(source); 
-                hls.attachMedia(video);
-                hls.on(Hls.Events.MANIFEST_PARSED, () => {
-                    window.player = new Plyr(video, opts);
+                // Altyazıları Player'a zorla yerleştiriyoruz
+                embeddedTracks.forEach((trackInfo, index) => {
+                    const decodedText = decodeURIComponent(trackInfo.data);
+                    const blob = new Blob([decodedText], { type: 'text/vtt' });
+                    const url = URL.createObjectURL(blob);
+
+                    const track = document.createElement('track');
+                    track.kind = 'captions';
+                    track.label = trackInfo.label;
+                    track.srclang = 'tr';
+                    track.src = url;
+                    if (index === 0) track.default = true;
+
+                    video.appendChild(track);
                 });
-            } else { 
-                video.src = source; 
-                window.player = new Plyr(video, opts); 
-            }
+
+                const source = '${videoUrl}';
+                const opts = {
+                    captions: { active: true, language: 'tr', update: true },
+                    seekTime: 10
+                };
+
+                // Player'ı Başlat (Altyazılar eklendikten sonra başlıyor, bu çok önemli!)
+                if (Hls.isSupported() && source.includes('.m3u8')) {
+                    const hls = new Hls();
+                    hls.loadSource(source);
+                    hls.attachMedia(video);
+                    hls.on(Hls.Events.MANIFEST_PARSED, () => {
+                        window.player = new Plyr(video, opts);
+                    });
+                } else {
+                    video.src = source;
+                    window.player = new Plyr(video, opts);
+                }
+            });
         </script>
     </body>
     </html>`);

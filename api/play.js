@@ -37,19 +37,15 @@ export default async function handler(req, res) {
     if (!data || !data.sources || data.sources.length === 0) return res.status(404).send("Sunucu kaynak vermedi.");
     const videoUrl = data.sources[data.sources.length - 1].src;
 
-    // === BÜYÜK KEŞİF BURADA DEVREYE GİRİYOR ===
     let rawSubtitles = [];
     
-    // 1. Ekran görüntüsünde yakaladığımız yeni gizli alan
     if (data.subtitle) {
         rawSubtitles.push({ label: 'Türkçe', file: data.subtitle });
     }
-    // 2. Eski sistem olanlar için yedek arama
     if (data.tracks && Array.isArray(data.tracks)) {
         data.tracks.forEach(t => rawSubtitles.push({ label: t.label || 'Türkçe', file: t.file || t.src }));
     }
 
-    // Altyazıları güvenli bir şekilde sunucuda indirip gömüyoruz
     let embeddedTracks = [];
     for (let t of rawSubtitles) {
         let trackFile = t.file;
@@ -83,7 +79,13 @@ export default async function handler(req, res) {
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>İnadına TV Player</title>
         <link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css" />
-        <style>body { margin:0; background:#000; overflow:hidden; } video { width:100vw; height:100vh; } :root { --plyr-color-main: #e50914; }</style>
+        <style>
+            body { margin:0; background:#000; overflow:hidden; } 
+            /* object-fit: cover komutu sağdaki ve soldaki siyah boşlukları yok eder, ekranı tam kaplar */
+            video { width:100vw; height:100vh; object-fit: cover !important; } 
+            :root { --plyr-color-main: #e50914; }
+            .plyr__video-wrapper { width: 100vw; height: 100vh; }
+        </style>
     </head>
     <body>
         <video id="player" playsinline controls crossorigin="anonymous"></video>
@@ -95,7 +97,6 @@ export default async function handler(req, res) {
                 const video = document.getElementById('player');
                 const embeddedTracks = ${JSON.stringify(embeddedTracks)};
 
-                // Bulunan tüm altyazıları player'a işliyoruz
                 embeddedTracks.forEach((trackInfo, index) => {
                     const blob = new Blob([decodeURIComponent(trackInfo.data)], { type: 'text/vtt' });
                     const url = URL.createObjectURL(blob);
@@ -116,16 +117,40 @@ export default async function handler(req, res) {
                     seekTime: 10
                 };
 
+                let playerInstance;
+
                 if (Hls.isSupported() && source.includes('.m3u8')) {
                     const hls = new Hls();
                     hls.loadSource(source);
                     hls.attachMedia(video);
                     hls.on(Hls.Events.MANIFEST_PARSED, () => {
-                        window.player = new Plyr(video, opts);
+                        playerInstance = new Plyr(video, opts);
+                        setupCinemaMode(playerInstance);
                     });
                 } else {
                     video.src = source;
-                    window.player = new Plyr(video, opts);
+                    playerInstance = new Plyr(video, opts);
+                    setupCinemaMode(playerInstance);
+                }
+
+                // SİNEMA MODU: Otomatik Tam Ekran ve Yan Çevirme Motoru
+                function setupCinemaMode(plyrPlayer) {
+                    let firstPlay = true;
+                    
+                    // Oynat tuşuna basıldığı an tetiklenir
+                    plyrPlayer.on('play', () => {
+                        if (firstPlay && !plyrPlayer.fullscreen.active) {
+                            plyrPlayer.fullscreen.enter().catch(err => console.log("Tam ekran hatası:", err));
+                            firstPlay = false;
+                        }
+                    });
+
+                    // Tam ekrana geçildiğinde telefonu zorla yan (landscape) çevirir
+                    plyrPlayer.on('enterfullscreen', () => {
+                        if (screen.orientation && screen.orientation.lock) {
+                            screen.orientation.lock('landscape').catch(err => console.log("Yan ekran kilidi desteklenmiyor veya reddedildi.", err));
+                        }
+                    });
                 }
             });
         </script>

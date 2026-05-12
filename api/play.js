@@ -1,160 +1,89 @@
-export default async function handler(req, res) {
-  const { id, vid, lang } = req.query;
+<?php
+// Botun yarıda kesilmesini önleyen sınırsız güç ayarları!
+set_time_limit(0); 
+ini_set('memory_limit', '-1');
 
-  if (!id) return res.status(400).send("Film ID eksik.");
+header('Content-Type: application/json; charset=utf-8');
 
-  try {
-    const ua = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"; 
-    const pageReq = await fetch(`https://www.filmmodu.one/${id}`, { headers: { "user-agent": ua, "referer": "https://www.filmmodu.one/" } });
-    const html = await pageReq.text();
-    const cookies = pageReq.headers.get('set-cookie') || ""; 
-    
-    const vId = vid || (html.match(/videoId\s*=\s*'([^']+)'/) || html.match(/data-movie-id="([^"]+)"/) || [])[1];
-    const csrf = (html.match(/"csrf-token" content="(.*?)"/) || [])[1];
+// EKSİKSİZ FULL KATEGORİ LİSTESİ
+$categories = [
+    'turkce-dublaj-hd-film-izle' => 'Türkçe Dublaj',
+    'altyazili-filmler' => 'Altyazılı Filmler',
+    'film-tur/4k' => '4K',
+    'film-tur/aile' => 'Aile',
+    'film-tur/aksiyon' => 'Aksiyon',
+    'film-tur/animasyon' => 'Animasyon',
+    'film-tur/belgesel' => 'Belgesel',
+    'film-tur/bilim-kurgu' => 'Bilim-Kurgu',
+    'film-tur/dram' => 'Dram',
+    'film-tur/fantastik' => 'Fantastik',
+    'film-tur/gerilim' => 'Gerilim',
+    'film-tur/gizem' => 'Gizem',
+    'film-tur/hint-filmleri' => 'Hint Filmleri',
+    'film-tur/kisa-film' => 'Kısa Film',
+    'film-tur/komedi' => 'Komedi',
+    'film-tur/korku' => 'Korku',
+    'film-tur/kult-filmler' => 'Kült Filmler',
+    'film-tur/macera' => 'Macera',
+    'film-tur/muzik' => 'Müzik',
+    'film-tur/oscar-odullu-filmler' => 'Oscar Ödüllü Filmler',
+    'film-tur/romantik' => 'Romantik',
+    'film-tur/savas' => 'Savaş',
+    'film-tur/stand-up' => 'Stand Up',
+    'film-tur/suc' => 'Suç',
+    'film-tur/tarih' => 'Tarih',
+    'film-tur/tavsiye-filmler' => 'Tavsiye Filmler',
+    'film-tur/tv-film' => 'TV filmi',
+    'film-tur/vahsi-bati' => 'Vahşi Batı'
+];
 
-    if (!vId || !csrf) return res.status(500).send("Video ID bulunamadı. Sayfayı yenileyin.");
+$moviesArray = [];
 
-    const targetLang = lang === 'en' ? 'en' : 'tr';
-    const typesToTry = [targetLang, targetLang === 'tr' ? 'en' : 'tr', '']; 
-    
-    let data = null;
-    
-    for (let t of typesToTry) {
-        let url = `https://www.filmmodu.one/get-source?movie_id=${vId}`;
-        if (t) url += `&type=${t}`;
-        const sourceReq = await fetch(url, {
-          headers: { "x-csrf-token": csrf, "x-requested-with": "XMLHttpRequest", "cookie": cookies, "user-agent": ua, "referer": `https://www.filmmodu.one/${id}` }
-        });
-        try {
-            const tempData = await sourceReq.json();
-            if (tempData.sources && tempData.sources.length > 0) {
-                data = tempData;
-                break; 
-            }
-        } catch(e) {}
-    }
+foreach ($categories as $path => $catName) {
+    // HIZLI TEST İÇİN SINIR 3 SAYFAYA DÜŞÜRÜLDÜ (Yaklaşık 60 film per kategori)
+    for ($i = 1; $i <= 3; $i++) { 
+        $url = "https://www.filmmodu.one/$path?page=$i";
+        
+        $ch = curl_init($url);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, [
+            'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
+            'Accept: text/html,application/xhtml+xml',
+            'Accept-Language: tr-TR,tr;q=0.9'
+        ]);
+        $html = curl_exec($ch);
+        curl_close($ch);
 
-    if (!data || !data.sources || data.sources.length === 0) return res.status(404).send("Sunucu kaynak vermedi.");
-    const videoUrl = data.sources[data.sources.length - 1].src;
+        preg_match_all('#<a href="https://www.filmmodu.one/([^"]+)".*?data-src="([^"]+)".*?<span class="turkish-name">(.*?)</span>#si', $html, $matches, PREG_SET_ORDER);
 
-    let rawSubtitles = [];
-    
-    if (data.subtitle) {
-        rawSubtitles.push({ label: 'Türkçe', file: data.subtitle });
-    }
-    if (data.tracks && Array.isArray(data.tracks)) {
-        data.tracks.forEach(t => rawSubtitles.push({ label: t.label || 'Türkçe', file: t.file || t.src }));
-    }
-
-    let embeddedTracks = [];
-    for (let t of rawSubtitles) {
-        let trackFile = t.file;
-        if (trackFile) {
-            if (trackFile.startsWith('//')) trackFile = 'https:' + trackFile;
-            else if (!trackFile.startsWith('http')) trackFile = 'https://www.filmmodu.one' + trackFile;
-
-            try {
-                const subRes = await fetch(trackFile, { headers: { "cookie": cookies, "user-agent": ua } });
-                if (subRes.ok) {
-                    let text = await subRes.text();
-                    text = text.replace(/^\uFEFF/, '');
-                    text = text.replace(/\r\n/g, '\n');
-                    text = text.replace(/(\d{2}:\d{2}:\d{2}),(\d{3})/g, '$1.$2');
-                    if (!text.includes('WEBVTT')) text = "WEBVTT\n\n" + text;
-
-                    embeddedTracks.push({
-                        label: t.label,
-                        data: encodeURIComponent(text)
-                    });
-                }
-            } catch (err) {}
+        if (count($matches) === 0) {
+            break; 
         }
+
+        foreach ($matches as $m) {
+            $id = trim($m[1], '/');
+            
+            if ($id && !isset($moviesArray[$id])) {
+                preg_match('#<a href="https://www.filmmodu.one/' . preg_quote($id) . '".*?<p class="top">(\d{4})#si', $html, $yearMatch);
+                $year = isset($yearMatch[1]) ? $yearMatch[1] : '2024';
+
+                $moviesArray[$id] = [
+                    "id" => $id,
+                    "title" => trim(strip_tags($m[3])), 
+                    "image" => trim($m[2]),
+                    "year" => $year,
+                    "category" => $catName
+                ];
+            }
+        }
+        
+        usleep(100000); // Bekleme süresini de hızlandırdık (0.1 saniye)
     }
-
-    res.setHeader('Content-Type', 'text/html; charset=utf-8');
-    res.send(`
-    <!DOCTYPE html>
-    <html lang="tr">
-    <head>
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>İnadına TV Player</title>
-        <link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css" />
-        <style>
-            body { margin:0; background:#000; overflow:hidden; } 
-            /* object-fit: cover komutu sağdaki ve soldaki siyah boşlukları yok eder, ekranı tam kaplar */
-            video { width:100vw; height:100vh; object-fit: cover !important; } 
-            :root { --plyr-color-main: #e50914; }
-            .plyr__video-wrapper { width: 100vw; height: 100vh; }
-        </style>
-    </head>
-    <body>
-        <video id="player" playsinline controls crossorigin="anonymous"></video>
-
-        <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
-        <script src="https://cdn.plyr.io/3.7.8/plyr.polyfilled.js"></script>
-        <script>
-            document.addEventListener('DOMContentLoaded', () => {
-                const video = document.getElementById('player');
-                const embeddedTracks = ${JSON.stringify(embeddedTracks)};
-
-                embeddedTracks.forEach((trackInfo, index) => {
-                    const blob = new Blob([decodeURIComponent(trackInfo.data)], { type: 'text/vtt' });
-                    const url = URL.createObjectURL(blob);
-
-                    const track = document.createElement('track');
-                    track.kind = 'captions';
-                    track.label = trackInfo.label;
-                    track.srclang = 'tr';
-                    track.src = url;
-                    if (index === 0) track.default = true;
-
-                    video.appendChild(track);
-                });
-
-                const source = '${videoUrl}';
-                const opts = {
-                    captions: { active: true, language: 'tr', update: true },
-                    seekTime: 10
-                };
-
-                let playerInstance;
-
-                if (Hls.isSupported() && source.includes('.m3u8')) {
-                    const hls = new Hls();
-                    hls.loadSource(source);
-                    hls.attachMedia(video);
-                    hls.on(Hls.Events.MANIFEST_PARSED, () => {
-                        playerInstance = new Plyr(video, opts);
-                        setupCinemaMode(playerInstance);
-                    });
-                } else {
-                    video.src = source;
-                    playerInstance = new Plyr(video, opts);
-                    setupCinemaMode(playerInstance);
-                }
-
-                // SİNEMA MODU: Otomatik Tam Ekran ve Yan Çevirme Motoru
-                function setupCinemaMode(plyrPlayer) {
-                    let firstPlay = true;
-                    
-                    // Oynat tuşuna basıldığı an tetiklenir
-                    plyrPlayer.on('play', () => {
-                        if (firstPlay && !plyrPlayer.fullscreen.active) {
-                            plyrPlayer.fullscreen.enter().catch(err => console.log("Tam ekran hatası:", err));
-                            firstPlay = false;
-                        }
-                    });
-
-                    // Tam ekrana geçildiğinde telefonu zorla yan (landscape) çevirir
-                    plyrPlayer.on('enterfullscreen', () => {
-                        if (screen.orientation && screen.orientation.lock) {
-                            screen.orientation.lock('landscape').catch(err => console.log("Yan ekran kilidi desteklenmiyor veya reddedildi.", err));
-                        }
-                    });
-                }
-            });
-        </script>
-    </body>
-    </html>`);
-  } catch (e) { res.status(500).send("Hata: " + e.message); }
 }
+
+file_put_contents('movies.json', json_encode(array_values($moviesArray), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+
+echo "Bot çok hızlı çalıştı! Toplam çekilen film sayısı: " . count($moviesArray);
+?>

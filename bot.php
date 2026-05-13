@@ -38,7 +38,10 @@ $categories = [
 $moviesArray = [];
 
 foreach ($categories as $path => $catName) {
-    for ($i = 1; $i <= 3; $i++) { 
+    $i = 1; // Sayfa sayacını başlat
+    
+    // Sınırsız döngü: Sayfa bitene kadar çalışır
+    while (true) { 
         $url = "https://www.filmmodu.one/$path?page=$i";
         
         $ch = curl_init($url);
@@ -55,6 +58,7 @@ foreach ($categories as $path => $catName) {
 
         preg_match_all('#<a href="https://www.filmmodu.one/([^"]+)".*?data-src="([^"]+)".*?<span class="turkish-name">(.*?)</span>#si', $html, $matches, PREG_SET_ORDER);
 
+        // Eğer sayfada hiç film bulunamazsa (yani kategorinin sonuna gelinmişse) sınırsız döngüyü kır ve diğer kategoriye geç
         if (count($matches) === 0) {
             break; 
         }
@@ -76,11 +80,12 @@ foreach ($categories as $path => $catName) {
             }
         }
         
-        usleep(100000); 
+        usleep(100000); // Sunucuyu yormamak için kısa bir bekleme
+        $i++; // Bir sonraki sayfaya geçmek için sayacı artır
     }
 }
 
 file_put_contents('movies.json', json_encode(array_values($moviesArray), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
 
-echo "Bot çok hızlı çalıştı! Toplam çekilen film sayısı: " . count($moviesArray);
+echo "Bot başarıyla tamamlandı! Sınırsız tarama yapıldı. Toplam çekilen film sayısı: " . count($moviesArray);
 ?>

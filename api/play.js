@@ -106,11 +106,24 @@ export default async function handler(req, res) {
                 cursor: pointer;
                 backdrop-filter: blur(5px);
                 box-shadow: 0 4px 10px rgba(0,0,0,0.5);
-                transition: 0.3s;
+                transition: opacity 0.4s ease, transform 0.3s;
+                opacity: 1;
             }
+            
             #resizeBtn:hover { background: #e50914; transform: scale(1.05); }
 
-            /* Mobilde buton fazla yer kaplamasın */
+            /* Oynatıcı kontrolleri kaybolunca buton da kaybolsun */
+            .plyr--hide-controls #resizeBtn {
+                opacity: 0 !important;
+                pointer-events: none !important;
+            }
+            
+            /* Tıkladıktan sonra zorla gizlemek için sınıf */
+            .force-hide {
+                opacity: 0 !important;
+                pointer-events: none !important;
+            }
+
             @media (max-width: 600px) {
                 #resizeBtn { top: 15px; left: 15px; font-size: 11px; padding: 6px 10px; }
             }
@@ -123,19 +136,36 @@ export default async function handler(req, res) {
         <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
         <script src="https://cdn.plyr.io/3.7.8/plyr.polyfilled.js"></script>
         <script>
-            // Ekran Modu Değiştirme Fonksiyonu
             const fitModes = ['contain', 'cover', 'fill'];
             const fitNames = ['Orijinal', 'Kırpıp Doldur', 'Esnet'];
             let currentFit = 0;
+            let hideTimeout;
 
+            // Ekran Modu Değiştirme Fonksiyonu
             function toggleFit() {
                 const videoEl = document.querySelector('video');
-                if(videoEl) {
+                const btn = document.getElementById('resizeBtn');
+                
+                if(videoEl && btn) {
                     currentFit = (currentFit + 1) % fitModes.length;
                     videoEl.style.setProperty('object-fit', fitModes[currentFit], 'important');
-                    document.getElementById('resizeBtn').innerHTML = '<i class="fas fa-expand"></i> Ekran: ' + fitNames[currentFit];
+                    btn.innerHTML = '<i class="fas fa-expand"></i> Ekran: ' + fitNames[currentFit];
+                    
+                    // İşlem yapıldıktan 1.5 saniye sonra kendiliğinden kaybolması için
+                    clearTimeout(hideTimeout);
+                    hideTimeout = setTimeout(() => {
+                        btn.classList.add('force-hide');
+                    }, 1500);
                 }
             }
+
+            // Ekrana tıklandığında (veya dokunulduğunda) butonu geri getir
+            document.addEventListener('click', (e) => {
+                const btn = document.getElementById('resizeBtn');
+                if(btn && e.target.id !== 'resizeBtn') {
+                    btn.classList.remove('force-hide');
+                }
+            });
 
             document.addEventListener('DOMContentLoaded', () => {
                 const video = document.getElementById('player');
@@ -178,9 +208,15 @@ export default async function handler(req, res) {
                 }
 
                 function setupCinemaMode(plyrPlayer) {
+                    // YENİ: Butonu Plyr oynatıcısının içine taşı ki tam ekranda da kaybolmasın
+                    const plyrContainer = document.querySelector('.plyr');
+                    const resizeBtn = document.getElementById('resizeBtn');
+                    if (plyrContainer && resizeBtn) {
+                        plyrContainer.appendChild(resizeBtn);
+                    }
+
                     let firstPlay = true;
                     
-                    // 1. Oynatıldığında otomatik tam ekran yap
                     plyrPlayer.on('play', () => {
                         if (firstPlay && !plyrPlayer.fullscreen.active) {
                             plyrPlayer.fullscreen.enter().catch(err => console.log("Tam ekran hatası:", err));
@@ -188,14 +224,12 @@ export default async function handler(req, res) {
                         }
                     });
 
-                    // 2. Tam ekrana girildiğinde zorla yatay yap
                     plyrPlayer.on('enterfullscreen', () => {
                         if (screen.orientation && screen.orientation.lock) {
                             screen.orientation.lock('landscape').catch(err => console.log("Yan ekran kilidi desteklenmiyor.", err));
                         }
                     });
 
-                    // 3. Tam ekrandan çıkıldığında kilidi çöz ve normale dön
                     plyrPlayer.on('exitfullscreen', () => {
                         if (screen.orientation && screen.orientation.unlock) {
                             screen.orientation.unlock();

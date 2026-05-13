@@ -79,27 +79,64 @@ export default async function handler(req, res) {
         <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
         <title>İnadına TV Player</title>
         <link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
         <style>
-            /* Mobil tarayıcı dostu tam ekran (100dvh butonların kaybolmasını önler) */
             body, html { margin:0; padding:0; background:#000; overflow:hidden; width:100%; height:100vh; height:100dvh; } 
             
             .plyr { width: 100%; height: 100%; }
             
-            /* Normal görünümde video sığdırılır, kesilme olmaz */
-            video { width:100%; height:100%; object-fit: contain !important; } 
-            
-            /* Sadece tam ekrana geçildiğinde siyah barları yok et (Sinema Modu) */
-            .plyr--fullscreen-active video { object-fit: cover !important; }
+            video { width:100%; height:100%; object-fit: contain !important; transition: object-fit 0.3s; } 
             
             :root { --plyr-color-main: #e50914; }
+
+            /* Ekran Modu Butonu CSS */
+            #resizeBtn {
+                position: absolute;
+                top: 20px;
+                left: 20px;
+                z-index: 10000;
+                background: rgba(229, 9, 20, 0.85);
+                color: white;
+                border: 1px solid rgba(255,255,255,0.3);
+                border-radius: 8px;
+                padding: 8px 15px;
+                font-family: Arial, sans-serif;
+                font-size: 13px;
+                font-weight: bold;
+                cursor: pointer;
+                backdrop-filter: blur(5px);
+                box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+                transition: 0.3s;
+            }
+            #resizeBtn:hover { background: #e50914; transform: scale(1.05); }
+
+            /* Mobilde buton fazla yer kaplamasın */
+            @media (max-width: 600px) {
+                #resizeBtn { top: 15px; left: 15px; font-size: 11px; padding: 6px 10px; }
+            }
         </style>
     </head>
     <body>
+        <button id="resizeBtn" onclick="toggleFit()"><i class="fas fa-expand"></i> Ekran: Orijinal</button>
         <video id="player" playsinline controls crossorigin="anonymous"></video>
 
         <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
         <script src="https://cdn.plyr.io/3.7.8/plyr.polyfilled.js"></script>
         <script>
+            // Ekran Modu Değiştirme Fonksiyonu
+            const fitModes = ['contain', 'cover', 'fill'];
+            const fitNames = ['Orijinal', 'Kırpıp Doldur', 'Esnet'];
+            let currentFit = 0;
+
+            function toggleFit() {
+                const videoEl = document.querySelector('video');
+                if(videoEl) {
+                    currentFit = (currentFit + 1) % fitModes.length;
+                    videoEl.style.setProperty('object-fit', fitModes[currentFit], 'important');
+                    document.getElementById('resizeBtn').innerHTML = '<i class="fas fa-expand"></i> Ekran: ' + fitNames[currentFit];
+                }
+            }
+
             document.addEventListener('DOMContentLoaded', () => {
                 const video = document.getElementById('player');
                 const embeddedTracks = ${JSON.stringify(embeddedTracks)};
@@ -158,7 +195,7 @@ export default async function handler(req, res) {
                         }
                     });
 
-                    // 3. YENİ EKLENDİ: Tam ekrandan çıkıldığında kilidi çöz ve normale dön
+                    // 3. Tam ekrandan çıkıldığında kilidi çöz ve normale dön
                     plyrPlayer.on('exitfullscreen', () => {
                         if (screen.orientation && screen.orientation.unlock) {
                             screen.orientation.unlock();

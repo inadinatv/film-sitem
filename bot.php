@@ -38,9 +38,8 @@ $categories = [
 $moviesArray = [];
 
 foreach ($categories as $path => $catName) {
-    $i = 1; // Sayfa sayacını başlat
+    $i = 1; 
     
-    // Sınırsız döngü: Sayfa bitene kadar çalışır
     while (true) { 
         $url = "https://www.filmmodu.one/$path?page=$i";
         
@@ -58,14 +57,17 @@ foreach ($categories as $path => $catName) {
 
         preg_match_all('#<a href="https://www.filmmodu.one/([^"]+)".*?data-src="([^"]+)".*?<span class="turkish-name">(.*?)</span>#si', $html, $matches, PREG_SET_ORDER);
 
-        // Eğer sayfada hiç film bulunamazsa (yani kategorinin sonuna gelinmişse) sınırsız döngüyü kır ve diğer kategoriye geç
         if (count($matches) === 0) {
             break; 
         }
 
+        // YENİ FREN SİSTEMİ: Bu sayfada kaç tane YENİ film bulduk?
+        $newMoviesCount = 0;
+
         foreach ($matches as $m) {
             $id = trim($m[1], '/');
             
+            // Sadece listemizde OLMAYAN bir filmse ekle
             if ($id && !isset($moviesArray[$id])) {
                 preg_match('#<a href="https://www.filmmodu.one/' . preg_quote($id) . '".*?<p class="top">(\d{4})#si', $html, $yearMatch);
                 $year = isset($yearMatch[1]) ? $yearMatch[1] : '2024';
@@ -77,15 +79,26 @@ foreach ($categories as $path => $catName) {
                     "year" => $year,
                     "category" => $catName
                 ];
+                $newMoviesCount++;
             }
         }
         
-        usleep(100000); // Sunucuyu yormamak için kısa bir bekleme
-        $i++; // Bir sonraki sayfaya geçmek için sayacı artır
+        // EĞER SİTE AYNI SAYFAYI TEKRAR ETTİYSE (Yeni film yoksa) DÖNGÜYÜ KIR!
+        if ($newMoviesCount === 0) {
+            break; 
+        }
+
+        usleep(100000); 
+        $i++;
+        
+        // GÜVENLİK FRENİ: Hiçbir kategori 150 sayfadan fazla taranmasın
+        if ($i > 150) {
+            break;
+        }
     }
 }
 
 file_put_contents('movies.json', json_encode(array_values($moviesArray), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
 
-echo "Bot başarıyla tamamlandı! Sınırsız tarama yapıldı. Toplam çekilen film sayısı: " . count($moviesArray);
+echo "Bot başarıyla ve güvenli bir şekilde tamamlandı! Toplam çekilen benzersiz film sayısı: " . count($moviesArray);
 ?>

@@ -51,7 +51,7 @@ if (file_exists($jsonFile)) {
 }
 
 // 2. GÜVENLİ LİMİT: Siteyi şüphelendirmeden kategori başı en güncel 3 sayfayı çeker
-$max_page_limit = 600; 
+$max_page_limit = 900; 
 
 foreach ($categories as $path => $catName) {
     $i = 1; 

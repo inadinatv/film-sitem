@@ -24,7 +24,7 @@ $categories = [
     'film-tur/kult-filmler-izle' => 'Kült Filmler',
     'film-tur/macera-filmleri' => 'Macera',
     'film-tur/muzik' => 'Müzik',
-    'film-tur/odullu-filmler-izle' => 'Oscar Ödüllü', // index.html ile birebir aynı yapıldı
+    'film-tur/odullu-filmler-izle' => 'Oscar Ödüllü', 
     'film-tur/romantik-filmler' => 'Romantik',
     'film-tur/savas-filmleri' => 'Savaş',
     'film-tur/stand-up' => 'Stand Up',
@@ -38,7 +38,7 @@ $categories = [
 $moviesArray = [];
 $jsonFile = 'movies.json';
 
-// 1. HAYATİ DOKUNUŞ: ÖNCEKİ FİLMLERİ SİLME, HAFIZAYA AL!
+// 1. HAFIZA: Eski filmleri asla silme, belleğe al
 if (file_exists($jsonFile)) {
     $existingData = json_decode(file_get_contents($jsonFile), true);
     if (is_array($existingData)) {
@@ -50,20 +50,21 @@ if (file_exists($jsonFile)) {
     }
 }
 
-// 2. GÜVENLİ LİMİT: Siteyi şüphelendirmeden kategori başı en güncel 3 sayfayı çeker
-$max_page_limit = 1000; 
+$baslangic_sayisi = count($moviesArray);
 
 foreach ($categories as $path => $catName) {
     $i = 1; 
+    $lastPageIds = []; // Sitenin aynı sayfayı tekrar edip etmediğini anlamak için
     
-    while ($i <= $max_page_limit) { 
+    // 2. SINIRSIZ DÖNGÜ: Site bitene kadar tarar
+    while (true) { 
         $url = "https://www.filmmodu.one/$path?page=$i";
         
         $ch = curl_init($url);
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
-        curl_setopt($ch, CURLOPT_TIMEOUT, 15); 
+        curl_setopt($ch, CURLOPT_TIMEOUT, 20); 
         curl_setopt($ch, CURLOPT_HTTPHEADER, [
             'User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36',
             'Accept: text/html,application/xhtml+xml',
@@ -73,7 +74,7 @@ foreach ($categories as $path => $catName) {
         $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
         curl_close($ch);
 
-        // Site bizi engellerse (403/404) panik yapma, döngüyü kırıp elindekileri kaydet
+        // Kategori gerçekten bittiyse veya site hata verirse kır ve diğerine geç
         if ($httpcode != 200) {
             break;
         }
@@ -84,12 +85,20 @@ foreach ($categories as $path => $catName) {
             break; 
         }
 
-        $newMoviesCount = 0;
+        // SAYFA TEKRARI KONTROLÜ: Site bizi kandırıp aynı sayfayı veriyorsa dur
+        $currentPageIds = [];
+        foreach ($matches as $m) {
+            $currentPageIds[] = trim($m[1], '/');
+        }
+        if ($currentPageIds === $lastPageIds) {
+            break; 
+        }
+        $lastPageIds = $currentPageIds;
 
         foreach ($matches as $m) {
             $id = trim($m[1], '/');
             
-            // Sadece sistemde YOKSA ekle
+            // Film sistemde yoksa ekle
             if ($id && !isset($moviesArray[$id])) {
                 preg_match('#<a href="https://www.filmmodu.one/' . preg_quote($id) . '".*?<p class="top">(\d{4})#si', $html, $yearMatch);
                 
@@ -100,23 +109,20 @@ foreach ($categories as $path => $catName) {
                     "year" => isset($yearMatch[1]) ? $yearMatch[1] : '2024',
                     "category" => $catName
                 ];
-                $newMoviesCount++;
             }
         }
         
-        // Yeni film yoksa sıradaki kategoriye geç
-        if ($newMoviesCount === 0) {
-            break; 
-        }
+        // 3. CANLI KAYIT: Her sayfa geçişinde emeği anında kaydet
+        file_put_contents($jsonFile, json_encode(array_values($moviesArray), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
 
-        // Anti-Spam: İnsan gibi davran, 0.5 ile 1 saniye arası bekle
-        usleep(rand(500000, 1000000)); 
+        // Anti-Spam: İnsan gibi davran, şüphe çekmemek için hafif bekle
+        usleep(rand(400000, 800000)); 
         $i++;
     }
 }
 
-// 3. EMEKLERİ GÜVENLE KAYDET (Eski + Yeni filmler birleşti)
-file_put_contents($jsonFile, json_encode(array_values($moviesArray), JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+$bitis_sayisi = count($moviesArray);
+$eklenen_film = $bitis_sayisi - $baslangic_sayisi;
 
-echo "İşlem başarıyla bitti! Silinme tehlikesi olmadan kaydedilen toplam film sayısı: " . count($moviesArray);
+echo "Sınırsız çekim başarıyla tamamlandı! Yeni Eklenen Film: " . $eklenen_film . " | Toplam Arşivin: " . $bitis_sayisi;
 ?>

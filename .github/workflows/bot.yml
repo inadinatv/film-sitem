@@ -1,8 +1,21 @@
 name: Botu Calistir
 on:
   schedule:
+    # Her gece 03:00 - hizli tarama (yeni filmler)
     - cron: '0 3 * * *'
+    # Her Pazar 04:00 - derin tarama (tum arsiv, gozden kacanlar icin)
+    - cron: '0 4 * * 0'
   workflow_dispatch:
+    inputs:
+      mod:
+        description: 'Bot modu (normal: hizli tarama, derin: tam arsiv taramasi, tamir: bozuk kayit onarimi)'
+        required: false
+        default: 'normal'
+        type: choice
+        options:
+          - normal
+          - derin
+          - tamir
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -12,7 +25,7 @@ jobs:
         uses: shivammathur/setup-php@v2
         with: { php-version: '8.2' }
       - name: Botu calistir
-        run: php bot.php
+        run: php bot.php "${{ github.event.inputs.mod || (github.event.schedule == '0 4 * * 0' && 'derin' || 'normal') }}"
       - name: Github'a Kaydet
         run: |
           git config --local user.email "bot@github.com"

@@ -35,7 +35,8 @@ export default async function handler(req, res) {
     }
 
     if (!data || !data.sources || data.sources.length === 0) return res.status(404).send("Sunucu kaynak vermedi.");
-    const videoUrl = data.sources[data.sources.length - 1].src;
+    let videoUrl = data.sources[data.sources.length - 1].src;
+    if (videoUrl && videoUrl.startsWith('//')) videoUrl = 'https:' + videoUrl;
 
     let rawSubtitles = [];
     
@@ -185,7 +186,7 @@ export default async function handler(req, res) {
                     video.appendChild(track);
                 });
 
-                const source = '${videoUrl}';
+                const source = ${JSON.stringify(videoUrl)};
                 const opts = {
                     captions: { active: true, language: 'tr', update: true },
                     seekTime: 10

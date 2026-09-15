@@ -101,9 +101,11 @@ function fm_poster_num($image) {
 
 function fm_valid_id($id) {
     // Film sayfalarinin tamami "-film-izle" ile biter; enjeksiyon riski
-    // tasiyan karakterleri ve film disi linkleri (orn: giris) ele.
+    // tasiyan karakterleri ve film disi linkleri (orn: giris, kategori, 4k-film-izle) ele.
     if (!preg_match('/-film-izle$/', $id)) return false;
     if (preg_match('/[\s"\'<>\\\\]/', $id)) return false;
+    if (strpos($id, '/') !== false) return false; // film-tur/ veya alt yollar film degildir
+    if (in_array($id, ['turkce-dublaj-hd-film-izle', 'turkce-altyazili-hd-filmler-izle', '4k-film-izle'], true)) return false;
     return true;
 }
 
@@ -146,6 +148,8 @@ function fm_parse_listing($html) {
 
     $anchors = [];
     foreach ($am[1] as $hit) {
+        // Sadece gercek film sayfalarinin linkleri kabul edilir
+        // Film sayfasi -film-izle ile biter ve film-tur, turkce-dublaj vb. kategori/sayfa slug'larini icermez
         $id = trim($hit[0], "/ \t\n\r\0\x0B");
         if (fm_valid_id($id)) {
             $anchors[] = [$id, $hit[1]];
@@ -200,6 +204,11 @@ function fm_parse_listing($html) {
             $year = $m[1];
         } elseif (preg_match('#film-yil/(\d{4})#', $block, $m)) {
             $year = $m[1];
+        }
+
+        // Afis kontrolu: Gecerli poster resmi olmayan veya bos kartlar eklenmez
+        if ($image === '' || fm_poster_num($image) === 0) {
+            continue;
         }
 
         $cards[] = [
@@ -264,8 +273,15 @@ if ($mod === 'tamir') {
     $done  = 0;
 
     foreach ($targets as $id) {
-        list($html, $code) = fm_request(SITE . '/' . $id);
-        if ($code == 200 && $html !== '') {
+            list($html, $code) = fm_request(SITE . '/' . $id);
+            if ($code == 404 || strpos($html, 'Sayfa Bulunamadı') !== false || strpos($html, 'BULUNAMADI!') !== false) {
+                // Kaynak sitede film yok veya silinmis: arsivden temizle
+                unset($moviesArray[$id]);
+                $fixed++;
+                $done++;
+                continue;
+            }
+            if ($code == 200 && $html !== '') {
             $m = &$moviesArray[$id];
 
             if (preg_match('/<meta property="og:title" content="([^"]+)"/i', $html, $t)) {

@@ -711,7 +711,18 @@
         const btnBox = document.getElementById('langButtons');
         try {
             const res = await fetch(`/api/info?id=${encodeURIComponent(id)}`);
+            if (res.status === 404) {
+                document.getElementById('mDesc').innerHTML = '<span style="color:#ff5e62;"><i class="fas fa-exclamation-circle"></i> Bu film kaynak siteden kaldırılmış veya içerik bulunmuyor.</span>';
+                btnBox.innerHTML = '';
+                return;
+            }
             const data = await res.json();
+            if (data.exists === false || (!data.languages || data.languages.length === 0)) {
+                document.getElementById('mDesc').innerHTML = `<span style="color:#ffaa00;"><i class="fas fa-info-circle"></i> ${esc(data.message || 'Bu filmin izlenebilir video kaynağı bulunamadı.')}</span>`;
+                btnBox.innerHTML = '';
+                return;
+            }
+
             document.getElementById('mDesc').innerText = data.desc || 'Film açıklaması bulunamadı.';
 
             if (data.languages && data.languages.length > 0) {

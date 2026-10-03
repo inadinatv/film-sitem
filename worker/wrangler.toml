@@ -1,4 +1,5 @@
 name = "inadina-tv-player-api"
 main = "src/index.js"
+account_id = "05a5b4355b7f43a77afc3aa7dc9ed45d"
 compatibility_date = "2025-01-01"
 workers_dev = true

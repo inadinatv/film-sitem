@@ -500,7 +500,19 @@
 </div>
 
 <script>
-    let all = [], filtered = [], limit = 24, activeCat = 'Tümü', maxPoster = 0;
+    let all = [], filtered = [], limit = 24, activeCat = 'Türkçe Dublaj', maxPoster = 0;
+    // Her sekme/ziyaret için farklı ama tekrar üretilebilir bir akış: kullanıcı
+    // ilk girişte her zaman aynı ilk kartları görmez. Filtre/arama sırası bozulmaz.
+    const FEED_SEED = (() => {
+        try {
+            const key = 'inadına-tv-feed-seed';
+            const old = sessionStorage.getItem(key);
+            if (old) return Number(old) || 1;
+            const seed = Math.floor(Math.random() * 2147483647);
+            sessionStorage.setItem(key, String(seed));
+            return seed;
+        } catch (_) { return Date.now() % 2147483647; }
+    })();
     const byId = new Map();
 
     const NEW_CAT = 'Yeni Eklenenler';
@@ -527,6 +539,12 @@
             .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
     }
 
+    function feedHash(id) {
+        let h = FEED_SEED >>> 0;
+        for (let i = 0; i < String(id).length; i++) h = Math.imul(h ^ String(id).charCodeAt(i), 16777619);
+        return (h >>> 0) / 4294967296;
+    }
+
     function isNew(m) {
         if (m.added) {
             const t = new Date(m.added).getTime();
@@ -550,8 +568,10 @@
         maxPoster = all.reduce((mx, m) => Math.max(mx, m._num), 0);
         all.forEach(m => { m._new = isNew(m); });
 
-        // EN YENI EKLENEN FILM HER ZAMAN EN USTTE (filmmodu ile ayni mantik)
+        // Katalog varsayilan olarak güncel kalır; ilk ekranda Türkçe dublaj
+        // önceliği korunur, eşit adaylar ziyaret seed'i ile döner.
         all.sort((a, b) => (b._num - a._num) || String(b.added || '').localeCompare(String(a.added || '')));
+        all.forEach(m => { m._feed = feedHash(m.id); });
 
         renderCats();
         applyFilter();
@@ -652,10 +672,22 @@
     function applyFilter() {
         const term = document.getElementById('searchInput').value.trim().toLowerCase();
         filtered = all.filter(m => {
+            if (m.playable === false) return false; // botun kaynak kontrolünde elenen kayıtlar
             if (activeCat === NEW_CAT && !m._new) return false;
             if (activeCat !== 'Tümü' && activeCat !== NEW_CAT && m.category !== activeCat) return false;
             return !term || m.title.toLowerCase().includes(term);
         });
+
+        // Yeni sekmede farklı kartlar, dublaj önceliği ve güncellik birlikte korunur.
+        if (!term && (activeCat === 'Tümü' || activeCat === 'Türkçe Dublaj')) {
+            filtered.sort((a, b) => {
+                const dubbedA = a.category === 'Türkçe Dublaj' ? 1 : 0;
+                const dubbedB = b.category === 'Türkçe Dublaj' ? 1 : 0;
+                const scoreA = dubbedA * 1000 + (a._new ? 80 : 0) + (a._num / Math.max(maxPoster, 1)) * 20 + (a._feed || 0) * 12;
+                const scoreB = dubbedB * 1000 + (b._new ? 80 : 0) + (b._num / Math.max(maxPoster, 1)) * 20 + (b._feed || 0) * 12;
+                return scoreB - scoreA;
+            });
+        }
         limit = 24;
         render();
     }

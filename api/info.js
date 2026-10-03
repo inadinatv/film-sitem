@@ -9,7 +9,7 @@ export default async function handler(req, res) {
       headers: { "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)" }
     });
 
-    if (pageReq.status === 404) {
+    if (pageReq.status === 404 || pageReq.status >= 500) {
       return res.status(404).json({ exists: false, error: "Film bulunamadı." });
     }
 
@@ -33,7 +33,7 @@ export default async function handler(req, res) {
       .replace(/&lt;/g, "<").replace(/&gt;/g, ">")
       .replace(/&nbsp;/g, " ").trim();
 
-    const descMatch = html.match(/<meta property="og:description" content="([^"]+)"/);
+    const descMatch = html.match(/<meta[^>]+property=['"]og:description['"][^>]+content=['"]([^'"]*)['"]/i) || html.match(/<meta[^>]+content=['"]([^'"]*)['"][^>]+property=['"]og:description['"]/i);
     const desc = descMatch ? decode(descMatch[1]) : "Film açıklaması yüklenemedi.";
 
     // Sadece geçerli film slug'ları kabul edilir
@@ -41,9 +41,8 @@ export default async function handler(req, res) {
 
     // Oynatıcı / Video ID varlığı kontrolü (içerik gerçekten var mı?)
     const hasPlayer =
-      /videoId\s*=\s*'[^']+'/.test(html) ||
-      /data-movie-id="[^"]+"/.test(html) ||
-      /data-id="[^"]+"/.test(html) ||
+      (/videoId\s*(?:=|:)\s*['"][^'"]+['"]/i.test(html)) ||
+      /data-(?:movie-id|video-id|id)=['"][^'"]+['"]/i.test(html) ||
       html.includes("/get-source");
 
     const languages = [];
@@ -61,7 +60,7 @@ export default async function handler(req, res) {
     }
 
     // 1. Link Tabanlı Dil Seçenekleri (<a href="...">...</a>)
-    const linkRegex = /<a[^>]+href="([^"]+)"[^>]*>(.*?)<\/a>/gi;
+    const linkRegex = /<a[^>]+href=['"]([^'"]+)['"][^>]*>(.*?)<\/a>/gi;
     let match;
     while ((match = linkRegex.exec(html)) !== null) {
       const text = match[2].trim().replace(/(<([^>]+)>)/gi, "");
@@ -81,7 +80,7 @@ export default async function handler(req, res) {
     }
 
     // 2. Ajax Tabanlı Dil Butonları (data-movie-id veya data-id)
-    const btnRegex = /<[^>]+data-(?:movie-id|id)="([^"]+)"[^>]*>(.*?)<\/[^>]+>/gi;
+    const btnRegex = /<[^>]+data-(?:movie-id|video-id|id)=['"]([^'"]+)['"][^>]*>(.*?)<\/[^>]+>/gi;
     while ((match = btnRegex.exec(html)) !== null) {
       const text = match[2].trim().replace(/(<([^>]+)>)/gi, "");
       const tLower = text.toLowerCase();

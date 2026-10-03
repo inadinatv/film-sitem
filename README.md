@@ -34,6 +34,13 @@ Bot davranışı:
 - Yeni eklenen filmler sitede filmmodu'daki gibi **en üstte** listelenir.
 - Günlük çalıştırmada üst üste 3 sayfa boyunca yeni film görülmeyen kategori
   erken bitirilir; böylece tarama dakikalar içinde tamamlanır.
+- Dil kategorilerindeki tekil/çoğul URL değişiklikleri için otomatik alternatif yol
+  denenir; kaynak site yolu değişse bile yeni filmler çekilmeye devam eder.
+- Ana ekran ilk açılışta Türkçe dublajı öne alır; aynı sekmede sabit liste yerine
+  ziyaret bazlı seed ile farklı film kartları gösterir. `playable: false` kayıtlar
+  bot tarafından elendiğinde sitede listelenmez.
+- Oynatıcı, kaynak sitenin tek ve çift tırnaklı ve farklı video kaynağı JSON
+  biçimlerini destekler; geçerli kaynak yoksa kullanıcıya net hata verir.
 - GitHub Actions'ta `Actions → Botu Calistir → Run workflow` ile **tamir** modu
   elle tetiklenebilir.
 

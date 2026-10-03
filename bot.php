@@ -35,8 +35,10 @@ $earlyStop = ($mod !== 'derin');
 $jsonFile = __DIR__ . '/movies.json';
 
 $categories = [
-    'turkce-dublaj-hd-film-izle'      => 'Türkçe Dublaj',
-    'turkce-altyazili-hd-filmler-izle'=> 'Altyazılı Filmler',
+    // Kaynak site dil kategorilerinde zaman zaman tekil/cogul URL degistiriyor.
+    // fm_category_paths() ilk yolu dener, 404 olursa alternatif yolu dener.
+    'turkce-dublaj'                   => 'Türkçe Dublaj',
+    'turkce-altyazili'                => 'Altyazılı Filmler',
     'film-tur/4k-film-izle'           => '4K',
     'film-tur/aile-filmleri'          => 'Aile',
     'film-tur/aksiyon'                => 'Aksiyon',
@@ -69,6 +71,14 @@ $categories = [
 /* Yardimci fonksiyonlar                                               */
 /* ------------------------------------------------------------------ */
 
+function fm_category_paths($key) {
+    $paths = [
+        'turkce-dublaj'  => ['turkce-dublaj-hd-film-izle', 'turkce-dublaj-hd-filmler-izle'],
+        'turkce-altyazili' => ['turkce-altyazili-hd-filmler-izle', 'turkce-altyazili-hd-film-izle'],
+    ];
+    return $paths[$key] ?? [$key];
+}
+
 function fm_request($url, $timeout = 20) {
     $ch = curl_init($url);
     curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
@@ -97,6 +107,18 @@ function fm_poster_num($image) {
         return (int)$m[1];
     }
     return 0;
+}
+
+function fm_detail_playable($html, $httpcode) {
+    if ($httpcode === 404 || $html === '' ||
+        preg_match('/Sayfa\s+Bulunamadı|BULUNAMADI!/iu', $html)) {
+        return false;
+    }
+    if ($httpcode !== 200) return null; // Geçici kaynak hatası: filmi silme.
+    return (bool) preg_match(
+        '/videoId\s*(?:=|:)\s*[\"\'][^\"\']+[\"\']|data-(?:movie-id|video-id|id)=[\"\'][^\"\']+[\"\']|\/get-source/i',
+        $html
+    );
 }
 
 function fm_valid_id($id) {
@@ -338,8 +360,16 @@ foreach ($categories as $path => $catName) {
     $knownStreak = 0; // ust uste tamamen bilinen sayfa sayaci
 
     while (true) {
-        $url = SITE . "/$path?page=$i";
-        list($html, $httpcode) = fm_request($url);
+        $html = '';
+        $httpcode = 0;
+        foreach (fm_category_paths($path) as $candidatePath) {
+            list($candidateHtml, $candidateCode) = fm_request(SITE . "/$candidatePath?page=$i");
+            if ($candidateCode === 200 && $candidateHtml !== '') {
+                $html = $candidateHtml;
+                $httpcode = $candidateCode;
+                break;
+            }
+        }
 
         // Kategori bittiyse veya site hata verirse diger kategoriye gec
         if ($httpcode != 200 || $html === '') {
@@ -365,8 +395,9 @@ foreach ($categories as $path => $catName) {
             $id = $card['id'];
 
             if (!isset($moviesArray[$id])) {
-                // Yeni film: eklenme tarihini not et
-                $moviesArray[$id] = [
+                // Yeni film: eklenme tarihini not et. Detay sayfası açıkça
+                // yoksa playable=false yaz; geçici ağ hatasında filmi silme.
+                $movie = [
                     'id'       => $id,
                     'title'    => $card['title'],
                     'image'    => $card['image'],
@@ -374,6 +405,10 @@ foreach ($categories as $path => $catName) {
                     'category' => $catName,
                     'added'    => date('Y-m-d'),
                 ];
+                list($detailHtml, $detailCode) = fm_request(SITE . '/' . $id, 12);
+                $playable = fm_detail_playable($detailHtml, $detailCode);
+                if ($playable !== null) $movie['playable'] = $playable;
+                $moviesArray[$id] = $movie;
                 $pageNew++;
             } else {
                 // Kayitli film: eksik alanlari firsat bu firsat onar

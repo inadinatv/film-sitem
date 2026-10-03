@@ -9,10 +9,10 @@ export default async function handler(req, res) {
     const html = await pageReq.text();
     const cookies = pageReq.headers.get('set-cookie') || ""; 
     
-    const vId = vid || (html.match(/videoId\s*=\s*'([^']+)'/) || html.match(/data-movie-id="([^"]+)"/) || [])[1];
-    const csrf = (html.match(/"csrf-token" content="(.*?)"/) || [])[1];
+    const vId = vid || (html.match(/videoId\s*(?:=|:)\s*['"]([^'"]+)['"]/i) || html.match(/data-(?:movie-id|video-id|id)=['"]([^'"]+)['"]/i) || [])[1];
+    const csrf = (html.match(/<meta[^>]+name=['"]csrf-token['"][^>]+content=['"]([^'"]*)['"]/i) || html.match(/csrfToken\s*[:=]\s*['"]([^'"]+)['"]/i) || [])[1] || "";
 
-    if (!vId || !csrf) return res.status(500).send("Video ID bulunamadı. Sayfayı yenileyin.");
+    if (!vId) return res.status(404).send("Bu film için oynatıcı kaynağı bulunamadı.");
 
     const targetLang = lang === 'en' ? 'en' : 'tr';
     const typesToTry = [targetLang, targetLang === 'tr' ? 'en' : 'tr', '']; 
@@ -23,19 +23,22 @@ export default async function handler(req, res) {
         let url = `https://www.filmmodu.one/get-source?movie_id=${vId}`;
         if (t) url += `&type=${t}`;
         const sourceReq = await fetch(url, {
-          headers: { "x-csrf-token": csrf, "x-requested-with": "XMLHttpRequest", "cookie": cookies, "user-agent": ua, "referer": `https://www.filmmodu.one/${id}` }
+          headers: { ...(csrf ? { "x-csrf-token": csrf } : {}), "accept": "application/json, text/plain, */*", "x-requested-with": "XMLHttpRequest", "cookie": cookies, "user-agent": ua, "referer": `https://www.filmmodu.one/${id}` }
         });
         try {
             const tempData = await sourceReq.json();
-            if (tempData.sources && tempData.sources.length > 0) {
-                data = tempData;
+            const sources = tempData.sources || tempData.data?.sources || (Array.isArray(tempData.data) ? tempData.data : []);
+            if (sources.length > 0) {
+                data = { ...tempData, sources };
                 break; 
             }
         } catch(e) {}
     }
 
     if (!data || !data.sources || data.sources.length === 0) return res.status(404).send("Sunucu kaynak vermedi.");
-    let videoUrl = data.sources[data.sources.length - 1].src;
+    const usableSources = data.sources.filter(s => s && (s.src || s.file || s.url));
+    if (!usableSources.length) return res.status(404).send("Sunucu geçerli video kaynağı vermedi.");
+    let videoUrl = usableSources[usableSources.length - 1].src || usableSources[usableSources.length - 1].file || usableSources[usableSources.length - 1].url;
     if (videoUrl && videoUrl.startsWith('//')) videoUrl = 'https:' + videoUrl;
 
     let rawSubtitles = [];

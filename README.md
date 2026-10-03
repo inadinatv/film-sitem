@@ -54,3 +54,15 @@ python3 -m http.server 8080
 
 > Not: `/api/*` uçları Vercel sunucusuz fonksiyonlarıdır; yerel önizlemede film
 > detayları alınamazsa pencere otomatik olarak yedek oynatma butonlarına düşer.
+
+## GitHub Pages yayını
+
+`main` dalına yapılan her push sonrasında `.github/workflows/pages.yml` workflow'u
+siteyi otomatik olarak GitHub Pages'e dağıtır. GitHub deposunda bir kez
+`Settings → Pages → Source: GitHub Actions` seçilmelidir.
+
+GitHub Pages statik hosting olduğu için `api/info.js`, `api/play.js` ve `api/sub.js`
+çalışmaz. Katalog, arama, kategoriler ve film kartları çalışır; detay penceresinde
+API erişilemezse kullanıcı kaynak film sayfasına yönlendirilir. Tam oynatıcı ve
+altyazı desteği için bu API uçlarının Vercel veya başka bir sunucusuz platformda
+çalışıyor olması gerekir.

@@ -514,6 +514,11 @@
         } catch (_) { return Date.now() % 2147483647; }
     })();
     const byId = new Map();
+    const isGithubPages = window.location.hostname.endsWith('github.io');
+
+    function sourceMovieUrl(id) {
+        return `https://www.filmmodu.one/${encodeURIComponent(id)}`;
+    }
 
     const NEW_CAT = 'Yeni Eklenenler';
 
@@ -771,11 +776,14 @@
                 btnBox.innerHTML = `<a href="/api/play?id=${encodeURIComponent(id)}" target="_blank" class="play-btn"><i class="fas fa-play"></i> FİLMİ OYNAT</a>`;
             }
         } catch(e) {
-            document.getElementById('mDesc').innerText =
-                'Detaylar şu an alınamadı. Yine de aşağıdan izlemeyi deneyebilirsin.';
-            btnBox.innerHTML = `
-                <a href="/api/play?id=${encodeURIComponent(id)}&lang=tr" target="_blank" class="play-btn"><i class="fas fa-microphone-alt"></i> TÜRKÇE DUBLAJ</a>
-                <a href="/api/play?id=${encodeURIComponent(id)}&lang=en" target="_blank" class="play-btn"><i class="fas fa-comment-dots"></i> TÜRKÇE ALTYAZILI</a>`;
+            document.getElementById('mDesc').innerText = isGithubPages
+                ? 'GitHub Pages yalnızca statik dosyaları çalıştırır. Oynatıcıyı açmak için kaynak film sayfasını kullanabilirsin.'
+                : 'Detaylar şu an alınamadı. Yine de aşağıdan izlemeyi deneyebilirsin.';
+            btnBox.innerHTML = isGithubPages
+                ? `<a href="${sourceMovieUrl(id)}" target="_blank" rel="noopener" class="play-btn"><i class="fas fa-external-link-alt"></i> KAYNAK FİLM SAYFASINI AÇ</a>`
+                : `
+                    <a href="/api/play?id=${encodeURIComponent(id)}&lang=tr" target="_blank" class="play-btn"><i class="fas fa-microphone-alt"></i> TÜRKÇE DUBLAJ</a>
+                    <a href="/api/play?id=${encodeURIComponent(id)}&lang=en" target="_blank" class="play-btn"><i class="fas fa-comment-dots"></i> TÜRKÇE ALTYAZILI</a>`;
         }
     }
 

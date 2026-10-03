@@ -66,3 +66,31 @@ GitHub Pages statik hosting olduğu için `api/info.js`, `api/play.js` ve `api/s
 API erişilemezse kullanıcı kaynak film sayfasına yönlendirilir. Tam oynatıcı ve
 altyazı desteği için bu API uçlarının Vercel veya başka bir sunucusuz platformda
 çalışıyor olması gerekir.
+
+## Cloudflare Worker player API
+
+Vercel beklenmeden player backend'i `worker/` klasöründeki Cloudflare Worker'a
+taşınabilir. Worker şu uçları sağlar:
+
+- `/api/info?id=...` — film açıklaması ve dil seçenekleri
+- `/api/play?id=...&lang=tr|en` — Plyr/HLS oynatıcı sayfası
+- `/api/sub?url=...` — altyazı proxy'si
+
+Kurulum için Cloudflare hesabında bir API token oluşturup şu komutları çalıştır:
+
+```bash
+cd worker
+npm install
+npx wrangler login
+npx wrangler deploy
+```
+
+Deploy sonunda verilen `workers.dev` adresini kökteki `api-config.js` dosyasına yaz:
+
+```js
+window.FILM_API_BASE = 'https://inadina-tv-player-api.<hesap>.workers.dev';
+```
+
+Alternatif olarak GitHub Actions için `CLOUDFLARE_API_TOKEN` ve
+`CLOUDFLARE_ACCOUNT_ID` repository secret'larını ekleyip `main` dalına push etmek
+yeterlidir. Sonrasında GitHub Pages frontend'i Worker API'ye bağlanır.

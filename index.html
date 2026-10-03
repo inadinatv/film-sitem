@@ -499,6 +499,7 @@
     </div>
 </div>
 
+<script src="api-config.js"></script>
 <script>
     let all = [], filtered = [], limit = 24, activeCat = 'Türkçe Dublaj', maxPoster = 0;
     // Her sekme/ziyaret için farklı ama tekrar üretilebilir bir akış: kullanıcı
@@ -515,6 +516,12 @@
     })();
     const byId = new Map();
     const isGithubPages = window.location.hostname.endsWith('github.io');
+    const API_BASE = String(window.FILM_API_BASE || '').replace(/\/$/, '');
+
+    function apiHref(path, params = {}) {
+        const query = new URLSearchParams(params).toString();
+        return `${API_BASE}${path}${query ? '?' + query : ''}`;
+    }
 
     function sourceMovieUrl(id) {
         return `https://www.filmmodu.one/${encodeURIComponent(id)}`;
@@ -747,7 +754,7 @@
 
         const btnBox = document.getElementById('langButtons');
         try {
-            const res = await fetch(`/api/info?id=${encodeURIComponent(id)}`);
+            const res = await fetch(apiHref('/api/info', { id }));
             if (res.status === 404) {
                 document.getElementById('mDesc').innerHTML = '<span style="color:#ff5e62;"><i class="fas fa-exclamation-circle"></i> Bu film kaynak siteden kaldırılmış veya içerik bulunmuyor.</span>';
                 btnBox.innerHTML = '';
@@ -766,14 +773,14 @@
                 data.languages.forEach(l => {
                     const icon = l.name.toLowerCase().includes('altyaz') ? 'fa-comment-dots' : 'fa-microphone-alt';
                     const a = document.createElement('a');
-                    a.href = l.url;
+                    a.href = l.url.startsWith('http') ? l.url : `${API_BASE}${l.url}`;
                     a.target = '_blank';
                     a.className = 'play-btn';
                     a.innerHTML = `<i class="fas ${icon}"></i> ${esc(l.name.toUpperCase())}`;
                     btnBox.appendChild(a);
                 });
             } else {
-                btnBox.innerHTML = `<a href="/api/play?id=${encodeURIComponent(id)}" target="_blank" class="play-btn"><i class="fas fa-play"></i> FİLMİ OYNAT</a>`;
+                btnBox.innerHTML = `<a href="${apiHref('/api/play', { id })}" target="_blank" class="play-btn"><i class="fas fa-play"></i> FİLMİ OYNAT</a>`;
             }
         } catch(e) {
             document.getElementById('mDesc').innerText = isGithubPages
@@ -782,8 +789,8 @@
             btnBox.innerHTML = isGithubPages
                 ? `<a href="${sourceMovieUrl(id)}" target="_blank" rel="noopener" class="play-btn"><i class="fas fa-external-link-alt"></i> KAYNAK FİLM SAYFASINI AÇ</a>`
                 : `
-                    <a href="/api/play?id=${encodeURIComponent(id)}&lang=tr" target="_blank" class="play-btn"><i class="fas fa-microphone-alt"></i> TÜRKÇE DUBLAJ</a>
-                    <a href="/api/play?id=${encodeURIComponent(id)}&lang=en" target="_blank" class="play-btn"><i class="fas fa-comment-dots"></i> TÜRKÇE ALTYAZILI</a>`;
+                    <a href="${apiHref('/api/play', { id, lang: 'tr' })}" target="_blank" class="play-btn"><i class="fas fa-microphone-alt"></i> TÜRKÇE DUBLAJ</a>
+                    <a href="${apiHref('/api/play', { id, lang: 'en' })}" target="_blank" class="play-btn"><i class="fas fa-comment-dots"></i> TÜRKÇE ALTYAZILI</a>`;
         }
     }
 

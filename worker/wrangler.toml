@@ -1,0 +1,4 @@
+name = "inadina-tv-player-api"
+main = "src/index.js"
+compatibility_date = "2026-10-04"
+workers_dev = true

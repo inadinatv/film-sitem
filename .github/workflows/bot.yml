@@ -24,6 +24,8 @@ jobs:
       - name: PHP Kurulumu
         uses: shivammathur/setup-php@v2
         with: { php-version: '8.2' }
+      - name: PHP syntax kontrolu
+        run: php -l bot.php
       - name: Botu calistir
         run: php bot.php "${{ github.event.inputs.mod || (github.event.schedule == '0 4 * * 0' && 'derin' || 'normal') }}"
       - name: Github'a Kaydet

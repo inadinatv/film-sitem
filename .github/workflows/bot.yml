@@ -16,11 +16,18 @@ on:
           - normal
           - derin
           - tamir
+# Aynı anda iki tarama movies.json üzerinde yarışmasın.
+concurrency:
+  group: film-bot-main
+  cancel-in-progress: false
+
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - name: PHP Kurulumu
         uses: shivammathur/setup-php@v2
         with: { php-version: '8.2' }
@@ -34,4 +41,7 @@ jobs:
           git config --local user.name "Film Botu"
           git add movies.json
           git commit -m "Filmler guncellendi" || echo "Degisiklik yok"
-          git push
+          # Workflow basladiktan sonra main degistiyse commit'i guncel dala tasi.
+          git fetch origin main
+          git rebase origin/main
+          git push origin HEAD:main

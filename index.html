@@ -783,10 +783,10 @@
                 btnBox.innerHTML = `<a href="${apiHref('/api/play', { id })}" target="_blank" class="play-btn"><i class="fas fa-play"></i> FİLMİ OYNAT</a>`;
             }
         } catch(e) {
-            document.getElementById('mDesc').innerText = isGithubPages
+            document.getElementById('mDesc').innerText = isGithubPages && !API_BASE
                 ? 'GitHub Pages yalnızca statik dosyaları çalıştırır. Oynatıcıyı açmak için kaynak film sayfasını kullanabilirsin.'
                 : 'Detaylar şu an alınamadı. Yine de aşağıdan izlemeyi deneyebilirsin.';
-            btnBox.innerHTML = isGithubPages
+            btnBox.innerHTML = isGithubPages && !API_BASE
                 ? `<a href="${sourceMovieUrl(id)}" target="_blank" rel="noopener" class="play-btn"><i class="fas fa-external-link-alt"></i> KAYNAK FİLM SAYFASINI AÇ</a>`
                 : `
                     <a href="${apiHref('/api/play', { id, lang: 'tr' })}" target="_blank" class="play-btn"><i class="fas fa-microphone-alt"></i> TÜRKÇE DUBLAJ</a>

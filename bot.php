@@ -278,15 +278,9 @@ if (file_exists($jsonFile)) {
 if ($mod === 'tamir') {
     $targets = [];
     foreach ($moviesArray as $id => $m) {
-        $title   = isset($m['title']) ? trim($m['title']) : '';
-        $titleOk = $title !== '' && strpos($title, '&#') === false;
-        $imageOk = fm_poster_num(isset($m['image']) ? $m['image'] : '') > 0;
-        // Baslik slug'dan uretilmise birebir aynidir; detay sayfasindan
-        // gercek basliga (orn: "Tron Ares" -> "Tron: Ares") cevrilebilir.
-        $slugTitle = ($title !== '' && fm_norm($title) === fm_norm(fm_title_from_slug($id)));
-        if (!$titleOk || !$imageOk || $slugTitle) {
-            $targets[] = $id;
-        }
+        // Tamir modu mevcut arşivi de kademeli olarak kaynak kontrolünden geçirir.
+        // Böylece kaldırılmış veya oynatıcısı olmayan eski kayıtlar zamanla silinir.
+        $targets[] = $id;
     }
 
     $limit = 500; // tek seferde en fazla bu kadar film onarilir
@@ -333,6 +327,10 @@ if ($mod === 'tamir') {
 
             if (preg_match('#film-yil/(\d{4})#', $html, $y)) {
                 $m['year'] = $y[1];
+            }
+            $playable = fm_detail_playable($html, $code);
+            if ($playable !== null) {
+                $m['playable'] = $playable;
             }
             unset($m);
         }

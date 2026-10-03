@@ -42,7 +42,8 @@ Bot davranışı:
 - Oynatıcı, kaynak sitenin tek ve çift tırnaklı ve farklı video kaynağı JSON
   biçimlerini destekler; geçerli kaynak yoksa kullanıcıya net hata verir.
 - GitHub Actions'ta `Actions → Botu Calistir → Run workflow` ile **tamir** modu
-  elle tetiklenebilir.
+  elle tetiklenebilir. Tamir her çalışmada arşivin ilk 500 kaydını oynatıcı/kaynak
+  kontrolünden geçirir; kaldırılan kayıtları siler ve kalanları `playable` alanıyla işaretler.
 
 ## Yerel önizleme
 

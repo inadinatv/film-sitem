@@ -5,6 +5,7 @@ on:
     branches: [main]
     paths:
       - 'worker/**'
+      - 'site/**'
       - '.github/workflows/cloudflare-worker.yml'
   workflow_dispatch:
 

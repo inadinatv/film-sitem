@@ -178,7 +178,7 @@ async function subtitle(rawUrl) {
 }
 
 export default {
-  async fetch(request) {
+  async fetch(request, env) {
     if (request.method === 'OPTIONS') return new Response(null, { status: 204, headers: cors() });
     const url = new URL(request.url);
     const path = url.pathname.replace(/\/+$/, '') || '/';
@@ -186,6 +186,7 @@ export default {
       if (path === '/api/info') return await info(url.searchParams.get('id'));
       if (path === '/api/play') return await play(url.searchParams.get('id'), url.searchParams.get('lang'), url.searchParams.get('vid'));
       if (path === '/api/sub') return await subtitle(url.searchParams.get('url'));
+      if (env.ASSETS) return env.ASSETS.fetch(request);
       return json({ ok: true, service: 'inadina-tv-player-api' });
     } catch (error) {
       return json({ error: error.message }, 500);

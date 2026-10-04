@@ -3,7 +3,9 @@ import worker from '../../worker/src/index.js';
 export default async (request) => {
   const incoming = new URL(request.url);
   const functionPath = incoming.pathname.replace(/^\/\.netlify\/functions\/api/, '') || '/';
-  const apiPath = `/api${functionPath}`;
+  const apiPath = functionPath.startsWith('/api/') || functionPath === '/api'
+    ? functionPath
+    : `/api${functionPath}`;
   const target = new URL(apiPath + incoming.search, incoming.origin);
 
   const headers = new Headers(request.headers);

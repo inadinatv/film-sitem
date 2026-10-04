@@ -99,17 +99,8 @@ async function info(id, vid) {
 
   for (const lang of ['tr', 'en']) {
     try {
-      const sourceResponse = await fetch(`${SOURCE}/get-source?movie_id=${encodeURIComponent(vid)}&type=${lang}`, {
-        headers: {
-          accept: 'application/json, text/plain, */*',
-          'x-requested-with': 'XMLHttpRequest',
-          'user-agent': UA,
-          referer: `${SOURCE}/${id}`,
-        },
-      });
-      const candidate = await sourceResponse.json();
-      const sources = candidate.sources || candidate.data?.sources || (Array.isArray(candidate.data) ? candidate.data : []);
-      if (sources.some((source) => source && (source.src || source.file || source.url))) {
+      const candidate = await fetchSourceCandidate(vid, lang, `${SOURCE}/${id}`);
+      if (candidate?.sources?.some((source) => source && (source.src || source.file || source.url))) {
         return json({
           exists: true,
           desc: parsed.desc,
@@ -131,6 +122,34 @@ function absoluteUrl(value) {
   return value;
 }
 
+async function fetchSourceCandidate(vid, type, referer) {
+  const query = `movie_id=${encodeURIComponent(vid)}&type=${encodeURIComponent(type)}`;
+  const headers = {
+    accept: 'application/json, text/plain, */*',
+    'x-requested-with': 'XMLHttpRequest',
+    'user-agent': UA,
+    referer,
+  };
+  try {
+    const direct = await fetch(`${SOURCE}/get-source?${query}`, { headers });
+    const candidate = await direct.json();
+    const sources = candidate.sources || candidate.data?.sources || (Array.isArray(candidate.data) ? candidate.data : []);
+    if (sources.length) return { ...candidate, sources };
+  } catch (_) {}
+  try {
+    const bridge = await fetch(`https://r.jina.ai/http://filmmodu.one/get-source?${query}`, { headers: { 'user-agent': UA } });
+    const text = await bridge.text();
+    const start = text.indexOf('{');
+    const end = text.lastIndexOf('}');
+    if (start >= 0 && end > start) {
+      const candidate = JSON.parse(text.slice(start, end + 1));
+      const sources = candidate.sources || candidate.data?.sources || (Array.isArray(candidate.data) ? candidate.data : []);
+      if (sources.length) return { ...candidate, sources };
+    }
+  } catch (_) {}
+  return null;
+}
+
 async function resolvePlay(id, lang = 'tr', vid) {
   const { response, html } = await sourcePage(id);
   if (isNotFound(html, response.status)) throw new Error('Film bulunamadı.');
@@ -143,20 +162,8 @@ async function resolvePlay(id, lang = 'tr', vid) {
   const types = [lang === 'en' ? 'en' : 'tr', lang === 'en' ? 'tr' : 'en', ''];
   let data;
   for (const type of types) {
-    const url = new URL(`${SOURCE}/get-source`);
-    url.searchParams.set('movie_id', vId);
-    if (type) url.searchParams.set('type', type);
-    const sourceResponse = await fetch(url, { headers: {
-      ...(csrf ? { 'x-csrf-token': csrf } : {}),
-      accept: 'application/json, text/plain, */*',
-      'x-requested-with': 'XMLHttpRequest', cookie, 'user-agent': UA,
-      referer: `${SOURCE}/${id}`,
-    }});
-    try {
-      const candidate = await sourceResponse.json();
-      const sources = candidate.sources || candidate.data?.sources || (Array.isArray(candidate.data) ? candidate.data : []);
-      if (sources.length) { data = { ...candidate, sources }; break; }
-    } catch (_) {}
+    const candidate = await fetchSourceCandidate(vId, type, `${SOURCE}/${id}`);
+    if (candidate?.sources?.length) { data = candidate; break; }
   }
   if (!data?.sources?.length) throw new Error('Sunucu geçerli video kaynağı vermedi.');
   const usable = data.sources.filter((s) => s && (s.src || s.file || s.url));

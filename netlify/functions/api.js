@@ -1,4 +1,5 @@
 import worker from '../../worker/src/index.js';
+import { MOVIE_IDS } from './movie-ids.js';
 
 export default async (request) => {
   const incoming = new URL(request.url);
@@ -7,6 +8,10 @@ export default async (request) => {
     ? functionPath
     : `/api${functionPath}`;
   const target = new URL(apiPath + incoming.search, incoming.origin);
+  const movieId = target.searchParams.get('id');
+  if (movieId && !target.searchParams.has('vid') && MOVIE_IDS[movieId]) {
+    target.searchParams.set('vid', MOVIE_IDS[movieId]);
+  }
 
   const headers = new Headers(request.headers);
   headers.delete('host');

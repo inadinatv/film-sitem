@@ -91,10 +91,37 @@ function parseInfo(id, html) {
   return { exists: languages.length > 0 || hasPlayer, desc, languages };
 }
 
-async function info(id) {
+async function info(id, vid) {
   const { response, html } = await sourcePage(id);
   if (isNotFound(html, response.status)) return json({ exists: false, error: 'Film bulunamadı.' }, 404);
-  return json(parseInfo(id, html));
+  const parsed = parseInfo(id, html);
+  if (parsed.exists || !vid) return json(parsed);
+
+  for (const lang of ['tr', 'en']) {
+    try {
+      const sourceResponse = await fetch(`${SOURCE}/get-source?movie_id=${encodeURIComponent(vid)}&type=${lang}`, {
+        headers: {
+          accept: 'application/json, text/plain, */*',
+          'x-requested-with': 'XMLHttpRequest',
+          'user-agent': UA,
+          referer: `${SOURCE}/${id}`,
+        },
+      });
+      const candidate = await sourceResponse.json();
+      const sources = candidate.sources || candidate.data?.sources || (Array.isArray(candidate.data) ? candidate.data : []);
+      if (sources.some((source) => source && (source.src || source.file || source.url))) {
+        return json({
+          exists: true,
+          desc: parsed.desc,
+          languages: [{
+            name: lang === 'en' ? 'Türkçe Altyazılı' : 'Türkçe Dublaj',
+            url: apiUrl('/api/play', { id, lang, vid }),
+          }],
+        });
+      }
+    } catch (_) {}
+  }
+  return json(parsed);
 }
 
 function absoluteUrl(value) {
@@ -189,7 +216,7 @@ export default {
     const url = new URL(request.url);
     const path = url.pathname.replace(/\/+$/, '') || '/';
     try {
-      if (path === '/api/info') return await info(url.searchParams.get('id'));
+      if (path === '/api/info') return await info(url.searchParams.get('id'), url.searchParams.get('vid'));
       if (path === '/api/play') return await play(url.searchParams.get('id'), url.searchParams.get('lang'), url.searchParams.get('vid'));
       if (path === '/api/sub') return await subtitle(url.searchParams.get('url'));
       if (env.ASSETS) return env.ASSETS.fetch(request);

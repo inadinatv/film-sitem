@@ -119,6 +119,7 @@ function absoluteUrl(value) {
   if (!value) return '';
   if (value.startsWith('//')) return `https:${value}`;
   if (value.startsWith('/')) return `${SOURCE}${value}`;
+  if (value.includes('imgsapi.pro/') && !/\.m3u8(?:\?|$)/i.test(value)) return `${value}.m3u8`;
   return value;
 }
 
@@ -225,7 +226,8 @@ async function stream(rawToken) {
     const target = new URL(data.url);
     const response = await fetch(target, { headers: { 'user-agent': UA, cookie: data.cookie || '', referer: `${SOURCE}/` } });
     const contentType = response.headers.get('content-type') || '';
-    const text = await response.text();
+    const bytes = await response.arrayBuffer();
+    const text = new TextDecoder().decode(bytes);
     if (target.pathname.endsWith('.m3u8') || text.trimStart().startsWith('#EXTM3U')) {
       const rewritten = text.split(/\r?\n/).map((line) => {
         const item = line.trim();
@@ -235,7 +237,7 @@ async function stream(rawToken) {
       }).join('\n');
       return new Response(rewritten, { status: response.status, headers: cors({ 'Content-Type': 'application/vnd.apple.mpegurl; charset=utf-8', 'Cache-Control': 'no-store' }) });
     }
-    return new Response(text, { status: response.status, headers: cors({ 'Content-Type': contentType || 'application/octet-stream', 'Cache-Control': 'no-store' }) });
+    return new Response(bytes, { status: response.status, headers: cors({ 'Content-Type': contentType || 'application/octet-stream', 'Cache-Control': 'no-store' }) });
   } catch (error) {
     return new Response(`Stream proxy error: ${error.message}`, { status: 502, headers: cors({ 'Content-Type': 'text/plain; charset=utf-8' }) });
   }

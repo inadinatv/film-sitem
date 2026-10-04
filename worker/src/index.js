@@ -134,7 +134,7 @@ async function fetchSourceCandidate(vid, type, referer) {
     const direct = await fetch(`${SOURCE}/get-source?${query}`, { headers });
     const candidate = await direct.json();
     const sources = candidate.sources || candidate.data?.sources || (Array.isArray(candidate.data) ? candidate.data : []);
-    if (sources.length) return { ...candidate, sources };
+    if (sources.length) return { ...candidate, sources, __cookie: direct.headers.get('set-cookie') || '' };
   } catch (_) {}
   try {
     const bridge = await fetch(`https://r.jina.ai/http://filmmodu.one/get-source?${query}`, { headers: { 'user-agent': UA } });
@@ -144,7 +144,7 @@ async function fetchSourceCandidate(vid, type, referer) {
     if (start >= 0 && end > start) {
       const candidate = JSON.parse(text.slice(start, end + 1));
       const sources = candidate.sources || candidate.data?.sources || (Array.isArray(candidate.data) ? candidate.data : []);
-      if (sources.length) return { ...candidate, sources };
+      if (sources.length) return { ...candidate, sources, __cookie: '' };
     }
   } catch (_) {}
   return null;
@@ -184,7 +184,17 @@ async function resolvePlay(id, lang = 'tr', vid) {
       }
     } catch (_) {}
   }
-  return { videoUrl, embeddedTracks };
+  return { videoUrl, embeddedTracks, cookie: data.__cookie || cookie };
+}
+
+function encodeToken(value) {
+  return btoa(unescape(encodeURIComponent(JSON.stringify(value))))
+    .replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+}
+
+function decodeToken(value) {
+  const padded = value.replace(/-/g, '+').replace(/_/g, '/') + '==='.slice((value.length + 3) % 4);
+  return JSON.parse(decodeURIComponent(escape(atob(padded))));
 }
 
 function playerHtml(videoUrl, tracks) {
@@ -202,9 +212,32 @@ function playerHtml(videoUrl, tracks) {
 async function play(id, lang, vid) {
   try {
     const result = await resolvePlay(id, lang, vid);
-    return new Response(playerHtml(result.videoUrl, result.embeddedTracks), { headers: cors({ 'Content-Type': 'text/html; charset=utf-8' }) });
+    const streamUrl = `/api/stream?token=${encodeURIComponent(encodeToken({ url: result.videoUrl, cookie: result.cookie }))}`;
+    return new Response(playerHtml(streamUrl, result.embeddedTracks), { headers: cors({ 'Content-Type': 'text/html; charset=utf-8' }) });
   } catch (error) {
     return new Response(`Oynatıcı kaynağı alınamadı: ${error.message}`, { status: 404, headers: cors({ 'Content-Type': 'text/plain; charset=utf-8' }) });
+  }
+}
+
+async function stream(rawToken) {
+  try {
+    const data = decodeToken(rawToken);
+    const target = new URL(data.url);
+    const response = await fetch(target, { headers: { 'user-agent': UA, cookie: data.cookie || '', referer: `${SOURCE}/` } });
+    const contentType = response.headers.get('content-type') || '';
+    const text = await response.text();
+    if (target.pathname.endsWith('.m3u8') || text.trimStart().startsWith('#EXTM3U')) {
+      const rewritten = text.split(/\r?\n/).map((line) => {
+        const item = line.trim();
+        if (!item || item.startsWith('#')) return line;
+        const next = new URL(item, target).toString();
+        return `/api/stream?token=${encodeURIComponent(encodeToken({ url: next, cookie: data.cookie || '' }))}`;
+      }).join('\n');
+      return new Response(rewritten, { status: response.status, headers: cors({ 'Content-Type': 'application/vnd.apple.mpegurl; charset=utf-8', 'Cache-Control': 'no-store' }) });
+    }
+    return new Response(text, { status: response.status, headers: cors({ 'Content-Type': contentType || 'application/octet-stream', 'Cache-Control': 'no-store' }) });
+  } catch (error) {
+    return new Response(`Stream proxy error: ${error.message}`, { status: 502, headers: cors({ 'Content-Type': 'text/plain; charset=utf-8' }) });
   }
 }
 
@@ -225,6 +258,7 @@ export default {
     try {
       if (path === '/api/info') return await info(url.searchParams.get('id'), url.searchParams.get('vid'));
       if (path === '/api/play') return await play(url.searchParams.get('id'), url.searchParams.get('lang'), url.searchParams.get('vid'));
+      if (path === '/api/stream') return await stream(url.searchParams.get('token') || '');
       if (path === '/api/sub') return await subtitle(url.searchParams.get('url'));
       if (env.ASSETS) return env.ASSETS.fetch(request);
       return json({ ok: true, service: 'inadina-tv-player-api' });

@@ -40,7 +40,13 @@ function apiUrl(path, params = {}) {
 async function sourcePage(id) {
   const url = movieUrl(id);
   if (!url) throw new Error('Geçersiz film ID.');
-  const response = await fetch(url, { headers: { 'user-agent': UA } });
+  const response = await fetch(url, {
+    headers: {
+      'user-agent': UA,
+      accept: 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+      referer: `${SOURCE}/`,
+    },
+  });
   const html = await response.text();
   return { response, html };
 }

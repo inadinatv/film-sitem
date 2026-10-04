@@ -1,5 +1,50 @@
 [
     {
+        "id": "the-secret-number-film-izle",
+        "title": "The Secret Number",
+        "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/14946\/thumb_the-secret-number.jpg",
+        "year": "2012",
+        "category": "Bilim-Kurgu",
+        "added": "2026-10-04",
+        "playable": false
+    },
+    {
+        "id": "burnt-by-the-sun-2-film-izle",
+        "title": "Güneş Yanığı 2 (Çıkış)",
+        "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/14945\/thumb_burnt-by-the-sun-2.jpg",
+        "year": "2010",
+        "category": "Dram",
+        "added": "2026-10-04",
+        "playable": false
+    },
+    {
+        "id": "honor-society-film-izle",
+        "title": "Honor Society",
+        "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/14944\/thumb_honor-society.jpg",
+        "year": "2022",
+        "category": "Komedi",
+        "added": "2026-10-04",
+        "playable": false
+    },
+    {
+        "id": "castaway-on-the-moon-film-izle",
+        "title": "Kim'in Adası",
+        "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/14943\/thumb_castaway-on-the-moon.jpg",
+        "year": "2009",
+        "category": "Dram",
+        "added": "2026-10-04",
+        "playable": false
+    },
+    {
+        "id": "the-prosecutor-film-izle",
+        "title": "Savcı",
+        "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/14942\/thumb_the-prosecutor.jpg",
+        "year": "2024",
+        "category": "Aksiyon",
+        "added": "2026-10-04",
+        "playable": false
+    },
+    {
         "id": "sunny-sanskari-ki-tulsi-kumari-film-izle",
         "title": "Sunny Sanskari Ki Tulsi Kumari",
         "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/14941\/thumb_sunny-sanskari-ki-tulsi-kumari.jpg",
@@ -16,6 +61,15 @@
         "playable": true
     },
     {
+        "id": "seuls-film-izle",
+        "title": "Seuls",
+        "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/14939\/thumb_seuls.jpg",
+        "year": "2017",
+        "category": "Aile",
+        "added": "2026-10-04",
+        "playable": false
+    },
+    {
         "id": "the-best-you-can-film-izle",
         "title": "The Best You Can",
         "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/14938\/thumb_the-best-you-can.jpg",
@@ -30,6 +84,15 @@
         "year": "2025",
         "category": "Dram",
         "playable": true
+    },
+    {
+        "id": "talladega-nights-the-ballad-of-ricky-bobby-film-izle",
+        "title": "Talladega Geceleri: Ricky Bobby Hikayesi",
+        "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/14936\/thumb_talladega-nights-the-ballad-of-ricky-bobby.jpg",
+        "year": "2006",
+        "category": "Komedi",
+        "added": "2026-10-04",
+        "playable": false
     },
     {
         "id": "the-marksman-film-izle",
@@ -201,6 +264,15 @@
         "playable": true
     },
     {
+        "id": "christopher-and-the-ghost-film-izle",
+        "title": "Christopher and the Ghost",
+        "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/14914\/thumb_christopher-and-the-ghost.jpg",
+        "year": "2025",
+        "category": "Dram",
+        "added": "2026-10-04",
+        "playable": false
+    },
+    {
         "id": "blood-rush-film-izle",
         "title": "Blood Rush",
         "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/14913\/thumb_blood-rush.jpg",
@@ -248,6 +320,15 @@
         "year": "2025",
         "category": "Gerilim",
         "playable": true
+    },
+    {
+        "id": "diddy-the-making-of-a-bad-boy-film-izle",
+        "title": "Diddy the Making of a Bad Boy",
+        "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/14904\/thumb_diddy-the-making-of-a-bad-boy.jpg",
+        "year": "2025",
+        "category": "Belgesel",
+        "added": "2026-10-04",
+        "playable": false
     },
     {
         "id": "all-things-fair-film-izle",
@@ -346,6 +427,15 @@
         "playable": true
     },
     {
+        "id": "vampire-hunter-d-bloodlust-film-izle",
+        "title": "Vampir Avcısı D 2",
+        "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/14891\/thumb_vampire-hunter-d-bloodlust.jpg",
+        "year": "2000",
+        "category": "Aksiyon",
+        "added": "2026-10-04",
+        "playable": false
+    },
+    {
         "id": "black-barbie-a-documentary-film-izle",
         "title": "Siyahi Barbie",
         "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/14889\/thumb_black-barbie-a-documentary.jpg",
@@ -433,6 +523,15 @@
         "year": "2025",
         "category": "Komedi",
         "playable": true
+    },
+    {
+        "id": "the-visitor-from-the-future-film-izle",
+        "title": "The Visitor from the Future",
+        "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/14878\/thumb_the-visitor-from-the-future.jpg",
+        "year": "2022",
+        "category": "Aksiyon",
+        "added": "2026-10-04",
+        "playable": false
     },
     {
         "id": "south-park-post-covid-the-return-of-covid-film-izle",
@@ -659,6 +758,15 @@
         "playable": true
     },
     {
+        "id": "fantastic-planet-film-izle",
+        "title": "Vahşi Gezegen",
+        "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/14848\/thumb_fantastic-planet.jpg",
+        "year": "1973",
+        "category": "Animasyon",
+        "added": "2026-10-04",
+        "playable": false
+    },
+    {
         "id": "5-centimeters-per-second-film-izle",
         "title": "Saniyede Beş Santimetre",
         "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/14847\/thumb_5-centimeters-per-second.jpg",
@@ -755,12 +863,30 @@
         "playable": true
     },
     {
+        "id": "kgf-chapter-1-film-izle",
+        "title": "K.G.F : Bölüm 1",
+        "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/14835\/thumb_kgf-chapter-1.jpg",
+        "year": "2018",
+        "category": "Aksiyon",
+        "added": "2026-10-04",
+        "playable": false
+    },
+    {
         "id": "pleasure-film-izle",
         "title": "Haz",
         "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/14834\/thumb_pleasure.jpg",
         "year": "2025",
         "category": "Dram",
         "playable": true
+    },
+    {
+        "id": "monty-pythons-life-of-brian-film-izle",
+        "title": "Brian'ın Hayatı",
+        "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/14833\/thumb_monty-pythons-life-of-brian.jpg",
+        "year": "1979",
+        "category": "Komedi",
+        "added": "2026-10-04",
+        "playable": false
     },
     {
         "id": "weathering-with-you-film-izle",
@@ -843,6 +969,15 @@
         "playable": true
     },
     {
+        "id": "the-wicker-man-film-izle",
+        "title": "Gizemli Ada",
+        "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/14822\/thumb_the-wicker-man.jpg",
+        "year": "1973",
+        "category": "Gerilim",
+        "added": "2026-10-04",
+        "playable": false
+    },
+    {
         "id": "the-chronicles-of-riddick-dark-fury-film-izle",
         "title": "Riddick: Korkunç Öfke",
         "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/14821\/thumb_the-chronicles-of-riddick-dark-fury.jpg",
@@ -875,6 +1010,15 @@
         "playable": true
     },
     {
+        "id": "the-boy-and-the-heron-film-izle",
+        "title": "Çocuk ve Balıkçıl",
+        "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/14817\/thumb_the-boy-and-the-heron.jpg",
+        "year": "2023",
+        "category": "Animasyon",
+        "added": "2026-10-04",
+        "playable": false
+    },
+    {
         "id": "queen-of-hearts-film-izle",
         "title": "Kupa Kızı",
         "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/14816\/thumb_queen-of-hearts.jpg",
@@ -905,6 +1049,15 @@
         "year": "2025",
         "category": "Dram",
         "playable": true
+    },
+    {
+        "id": "nymphomaniac-vol-i-film-izle",
+        "title": "İtiraf",
+        "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/14812\/thumb_nymphomaniac-vol-i.jpg",
+        "year": "2013",
+        "category": "Dram",
+        "added": "2026-10-04",
+        "playable": false
     },
     {
         "id": "all-the-empty-rooms-film-izle",
@@ -1259,6 +1412,15 @@
         "year": "2025",
         "category": "Dram",
         "playable": true
+    },
+    {
+        "id": "urchin-film-izle",
+        "title": "Sokak Çocuğu",
+        "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/14767\/thumb_urchin.jpg",
+        "year": "2025",
+        "category": "Dram",
+        "added": "2026-10-04",
+        "playable": false
     },
     {
         "id": "stitch-head-film-izle",
@@ -1657,6 +1819,15 @@
         "playable": true
     },
     {
+        "id": "pyromaniac-film-izle",
+        "title": "Kundakçı",
+        "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/14712\/thumb_pyromaniac.jpg",
+        "year": "2016",
+        "category": "Dram",
+        "added": "2026-10-04",
+        "playable": false
+    },
+    {
         "id": "alien-uprising-film-izle",
         "title": "Alien Uprising",
         "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/14711\/thumb_alien-uprising.jpg",
@@ -2044,6 +2215,15 @@
         "playable": true
     },
     {
+        "id": "bernard-mission-mars-film-izle",
+        "title": "Süper Ajan Bernard: Görev Mars",
+        "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/14659\/thumb_bernard-mission-mars.jpg",
+        "year": "2023",
+        "category": "Aksiyon",
+        "added": "2026-10-04",
+        "playable": false
+    },
+    {
         "id": "the-ice-tower-film-izle",
         "title": "The Ice Tower",
         "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/14658\/thumb_the-ice-tower.jpg",
@@ -2253,6 +2433,24 @@
         "playable": true
     },
     {
+        "id": "the-astronaut-film-izle",
+        "title": "Astronot",
+        "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/14631\/thumb_the-astronaut.jpg",
+        "year": "2025",
+        "category": "Bilim-Kurgu",
+        "added": "2026-10-04",
+        "playable": false
+    },
+    {
+        "id": "boudica-queen-of-war-film-izle",
+        "title": "Boudica Queen of War",
+        "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/14630\/thumb_boudica-queen-of-war.jpg",
+        "year": "2023",
+        "category": "Aksiyon",
+        "added": "2026-10-04",
+        "playable": false
+    },
+    {
         "id": "lethal-desire-film-izle",
         "title": "Lethal Desire",
         "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/14629\/thumb_lethal-desire.jpg",
@@ -2348,6 +2546,15 @@
         "year": "2025",
         "category": "Aile",
         "playable": true
+    },
+    {
+        "id": "eleanor-the-great-film-izle",
+        "title": "Eleanor the Great",
+        "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/14617\/thumb_eleanor-the-great.jpg",
+        "year": "2025",
+        "category": "Dram",
+        "added": "2026-10-04",
+        "playable": false
     },
     {
         "id": "dont-log-off-film-izle",
@@ -2616,6 +2823,15 @@
         "playable": true
     },
     {
+        "id": "violent-ends-film-izle",
+        "title": "Violent Ends",
+        "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/14583\/thumb_violent-ends.jpg",
+        "year": "2025",
+        "category": "Gerilim",
+        "added": "2026-10-04",
+        "playable": false
+    },
+    {
         "id": "the-last-showgirl-film-izle",
         "title": "Şov Kızlarının Sonuncusu",
         "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/14582\/thumb_the-last-showgirl.jpg",
@@ -2849,6 +3065,15 @@
         "playable": true
     },
     {
+        "id": "no-sudden-move-film-izle",
+        "title": "No Sudden Move",
+        "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/14550\/thumb_no-sudden-move.jpg",
+        "year": "2021",
+        "category": "Dram",
+        "added": "2026-10-04",
+        "playable": false
+    },
+    {
         "id": "sharks-of-the-north-film-izle",
         "title": "Sharks of the North",
         "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/14549\/thumb_sharks-of-the-north.jpg",
@@ -2945,6 +3170,15 @@
         "playable": true
     },
     {
+        "id": "10-cent-pistol-film-izle",
+        "title": "10 Cent Pistol",
+        "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/14536\/thumb_10-cent-pistol.jpg",
+        "year": "2014",
+        "category": "Gerilim",
+        "added": "2026-10-04",
+        "playable": false
+    },
+    {
         "id": "love-bitter-film-izle",
         "title": "Love Bitter",
         "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/14535\/thumb_love-bitter.jpg",
@@ -2969,12 +3203,39 @@
         "playable": true
     },
     {
+        "id": "mantis-film-izle",
+        "title": "Mantis",
+        "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/14532\/thumb_mantis.jpg",
+        "year": "2025",
+        "category": "Aksiyon",
+        "added": "2026-10-04",
+        "playable": false
+    },
+    {
+        "id": "the-man-in-my-basement-film-izle",
+        "title": "Bodrumumdaki Adam",
+        "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/14531\/thumb_the-man-in-my-basement.jpg",
+        "year": "2025",
+        "category": "Gerilim",
+        "added": "2026-10-04",
+        "playable": false
+    },
+    {
         "id": "french-lover-film-izle",
         "title": "French Lover",
         "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/14530\/thumb_french-lover.jpg",
         "year": "2025",
         "category": "Türkçe Dublaj",
         "playable": true
+    },
+    {
+        "id": "rb-film-izle",
+        "title": "Ruth ve Boaz",
+        "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/14529\/thumb_rb.jpg",
+        "year": "2025",
+        "category": "Dram",
+        "added": "2026-10-04",
+        "playable": false
     },
     {
         "id": "marcello-mio-film-izle",
@@ -3031,6 +3292,15 @@
         "year": "2025",
         "category": "Türkçe Dublaj",
         "playable": true
+    },
+    {
+        "id": "nightride-film-izle",
+        "title": "Nightride",
+        "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/14519\/thumb_nightride.jpg",
+        "year": "2021",
+        "category": "Dram",
+        "added": "2026-10-04",
+        "playable": false
     },
     {
         "id": "broke-film-izle",
@@ -3111,6 +3381,15 @@
         "year": "2025",
         "category": "Türkçe Dublaj",
         "playable": true
+    },
+    {
+        "id": "freuds-last-session-film-izle",
+        "title": "Freud'un Son Seansı",
+        "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/14508\/thumb_freuds-last-session.jpg",
+        "year": "2023",
+        "category": "Dram",
+        "added": "2026-10-04",
+        "playable": false
     },
     {
         "id": "saiyaara-film-izle",
@@ -3289,6 +3568,15 @@
         "playable": true
     },
     {
+        "id": "the-naked-gun-film-izle",
+        "title": "Çıplak Silah",
+        "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/14484\/thumb_the-naked-gun.jpg",
+        "year": "2025",
+        "category": "Aksiyon",
+        "added": "2026-10-04",
+        "playable": false
+    },
+    {
         "id": "hitman-2-film-izle",
         "title": "Hitman 2",
         "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/14483\/thumb_hitman-2.jpg",
@@ -3338,6 +3626,15 @@
         "playable": true
     },
     {
+        "id": "she-rides-shotgun-film-izle",
+        "title": "Polly McClusky’nin Zor Eğitimi",
+        "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/14477\/thumb_she-rides-shotgun.jpg",
+        "year": "2025",
+        "category": "Dram",
+        "added": "2026-10-04",
+        "playable": false
+    },
+    {
         "id": "the-home-film-izle",
         "title": "The Home",
         "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/14476\/thumb_the-home.jpg",
@@ -3362,12 +3659,30 @@
         "playable": true
     },
     {
+        "id": "lee-film-izle",
+        "title": "Lee",
+        "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/14473\/thumb_lee.jpg",
+        "year": "2023",
+        "category": "Dram",
+        "added": "2026-10-04",
+        "playable": false
+    },
+    {
         "id": "ice-road-vengeance-film-izle",
         "title": "Buz Yolu: İntikam",
         "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/14472\/thumb_ice-road-vengeance.jpg",
         "year": "2025",
         "category": "Türkçe Dublaj",
         "playable": true
+    },
+    {
+        "id": "the-tomorrow-war-film-izle",
+        "title": "Yarının Savaşı",
+        "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/14471\/thumb_the-tomorrow-war.jpg",
+        "year": "2021",
+        "category": "Aksiyon",
+        "added": "2026-10-04",
+        "playable": false
     },
     {
         "id": "death-of-a-unicorn-film-izle",
@@ -3448,6 +3763,24 @@
         "year": "2025",
         "category": "Türkçe Dublaj",
         "playable": true
+    },
+    {
+        "id": "creed-iii-2023-film-izle",
+        "title": "Creed III: Efsane Devam Ediyor",
+        "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/14460\/thumb_creed-iii-2023.jpg",
+        "year": "2023",
+        "category": "Aksiyon",
+        "added": "2026-10-04",
+        "playable": false
+    },
+    {
+        "id": "creed-3-film-izle",
+        "title": "Creed 3: Efsane Devam Ediyor",
+        "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/14459\/thumb_creed-3.jpg",
+        "year": "2023",
+        "category": "Aksiyon",
+        "added": "2026-10-04",
+        "playable": false
     },
     {
         "id": "bixler-high-private-eye-film-izle",
@@ -3680,6 +4013,15 @@
         "year": "2025",
         "category": "Türkçe Dublaj",
         "playable": true
+    },
+    {
+        "id": "elio-film-izle",
+        "title": "Elio",
+        "image": "https:\/\/cdn.filmmodu.one\/uploads\/movie\/poster\/14427\/thumb_elio.jpg",
+        "year": "2025",
+        "category": "Animasyon",
+        "added": "2026-10-04",
+        "playable": false
     },
     {
         "id": "a-dog-and-pony-show-film-izle",

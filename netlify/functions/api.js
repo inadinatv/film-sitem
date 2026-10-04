@@ -1,33 +1,25 @@
-const UPSTREAM = 'https://inadina-tv-player-api.burhantasci72.workers.dev';
+import worker from '../../worker/src/index.js';
 
 export default async (request) => {
   const incoming = new URL(request.url);
-  const path = incoming.pathname.replace(/^\/\.netlify\/functions\/api/, '') || '/';
-  const target = `${UPSTREAM}/api${path}${incoming.search}`;
+  const functionPath = incoming.pathname.replace(/^\/\.netlify\/functions\/api/, '') || '/';
+  const apiPath = `/api${functionPath}`;
+  const target = new URL(apiPath + incoming.search, incoming.origin);
 
   const headers = new Headers(request.headers);
   headers.delete('host');
-  headers.set('user-agent', headers.get('user-agent') || 'Mozilla/5.0');
+
+  const proxiedRequest = new Request(target, {
+    method: request.method,
+    headers,
+    body: request.method === 'GET' || request.method === 'HEAD' ? undefined : request.body,
+  });
 
   try {
-    const upstream = await fetch(target, {
-      method: request.method,
-      headers,
-      body: request.method === 'GET' || request.method === 'HEAD' ? undefined : request.body,
-    });
-
-    const responseHeaders = new Headers(upstream.headers);
-    responseHeaders.set('access-control-allow-origin', '*');
-    responseHeaders.set('cache-control', 'no-store');
-
-    return new Response(upstream.body, {
-      status: upstream.status,
-      statusText: upstream.statusText,
-      headers: responseHeaders,
-    });
+    return await worker.fetch(proxiedRequest, {});
   } catch (error) {
-    return new Response(JSON.stringify({ error: 'Player API proxy unavailable', detail: String(error) }), {
-      status: 502,
+    return new Response(JSON.stringify({ error: String(error?.message || error) }), {
+      status: 500,
       headers: { 'content-type': 'application/json; charset=utf-8' },
     });
   }

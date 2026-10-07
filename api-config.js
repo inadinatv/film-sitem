@@ -1,2 +1,2 @@
-// Netlify aynı-origin proxy: tarayıcı doğrudan workers.dev adresine gitmez.
-window.FILM_API_BASE = '';
+// GitHub Pages statik olduğundan API çağrıları Cloudflare Worker'a gider.
+window.FILM_API_BASE = 'https://inadina-tv-player-api.burhantasci72.workers.dev';

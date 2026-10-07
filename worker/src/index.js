@@ -5,8 +5,9 @@ function cors(headers = {}) {
   return {
     ...headers,
     'Access-Control-Allow-Origin': '*',
-    'Access-Control-Allow-Methods': 'GET, OPTIONS',
-    'Access-Control-Allow-Headers': 'Content-Type',
+    'Access-Control-Allow-Methods': 'GET, HEAD, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type, Range, If-Range',
+    'Access-Control-Expose-Headers': 'Accept-Ranges, Content-Length, Content-Range, Content-Type, ETag, Last-Modified',
   };
 }
 
@@ -48,7 +49,28 @@ async function sourcePage(id) {
     },
   });
   const html = await response.text();
-  return { response, html };
+  return { response, html, cookie: cookieHeader(response.headers) };
+}
+
+function cookieHeader(headers) {
+  const values = typeof headers.getSetCookie === 'function'
+    ? headers.getSetCookie()
+    : [headers.get('set-cookie') || ''];
+  return values.map((value) => value.split(';', 1)[0].trim()).filter(Boolean).join('; ');
+}
+
+function mergeCookies(...values) {
+  const cookies = new Map();
+  values.filter(Boolean).join(';').split(';').forEach((part) => {
+    const separator = part.indexOf('=');
+    if (separator > 0) cookies.set(part.slice(0, separator).trim(), part.slice(separator + 1).trim());
+  });
+  return [...cookies].map(([name, value]) => `${name}=${value}`).join('; ');
+}
+
+function csrfToken(html) {
+  return (html.match(/<meta[^>]+name=['"]csrf-token['"][^>]+content=['"]([^'"]*)['"]/i)
+    || html.match(/csrfToken\s*[:=]\s*['"]([^'"]+)['"]/i) || [])[1] || '';
 }
 
 function isNotFound(html, status) {
@@ -92,14 +114,14 @@ function parseInfo(id, html) {
 }
 
 async function info(id, vid) {
-  const { response, html } = await sourcePage(id);
+  const { response, html, cookie: pageCookie } = await sourcePage(id);
   if (isNotFound(html, response.status)) return json({ exists: false, error: 'Film bulunamadı.' }, 404);
   const parsed = parseInfo(id, html);
   if (parsed.exists || !vid) return json(parsed);
 
   for (const lang of ['tr', 'en']) {
     try {
-      const candidate = await fetchSourceCandidate(vid, lang, `${SOURCE}/${id}`);
+      const candidate = await fetchSourceCandidate(vid, lang, `${SOURCE}/${id}`, { cookie: pageCookie, csrf: csrfToken(html) });
       if (candidate?.sources?.some((source) => source && (source.src || source.file || source.url))) {
         return json({
           exists: true,
@@ -123,7 +145,7 @@ function absoluteUrl(value) {
   return value;
 }
 
-async function fetchSourceCandidate(vid, type, referer) {
+async function fetchSourceCandidate(vid, type, referer, session = {}) {
   const query = `movie_id=${encodeURIComponent(vid)}&type=${encodeURIComponent(type)}`;
   const headers = {
     accept: 'application/json, text/plain, */*',
@@ -131,11 +153,13 @@ async function fetchSourceCandidate(vid, type, referer) {
     'user-agent': UA,
     referer,
   };
+  if (session.cookie) headers.cookie = session.cookie;
+  if (session.csrf) headers['x-csrf-token'] = session.csrf;
   try {
     const direct = await fetch(`${SOURCE}/get-source?${query}`, { headers });
     const candidate = await direct.json();
     const sources = candidate.sources || candidate.data?.sources || (Array.isArray(candidate.data) ? candidate.data : []);
-    if (sources.length) return { ...candidate, sources, __cookie: direct.headers.get('set-cookie') || '' };
+    if (sources.length) return { ...candidate, sources, __cookie: mergeCookies(session.cookie, cookieHeader(direct.headers)) };
   } catch (_) {}
   try {
     const bridge = await fetch(`https://r.jina.ai/http://filmmodu.one/get-source?${query}`, { headers: { 'user-agent': UA } });
@@ -145,25 +169,23 @@ async function fetchSourceCandidate(vid, type, referer) {
     if (start >= 0 && end > start) {
       const candidate = JSON.parse(text.slice(start, end + 1));
       const sources = candidate.sources || candidate.data?.sources || (Array.isArray(candidate.data) ? candidate.data : []);
-      if (sources.length) return { ...candidate, sources, __cookie: '' };
+      if (sources.length) return { ...candidate, sources, __cookie: session.cookie || '' };
     }
   } catch (_) {}
   return null;
 }
 
 async function resolvePlay(id, lang = 'tr', vid) {
-  const { response, html } = await sourcePage(id);
+  const { response, html, cookie: pageCookie } = await sourcePage(id);
   if (isNotFound(html, response.status)) throw new Error('Film bulunamadı.');
   const vId = vid || (html.match(/videoId\s*(?:=|:)\s*['"]([^'"]+)['"]/i)
     || html.match(/data-(?:movie-id|video-id|id)=['"]([^'"]+)['"]/i) || [])[1];
   if (!vId) throw new Error('Bu film için oynatıcı kaynağı bulunamadı.');
-  const csrf = (html.match(/<meta[^>]+name=['"]csrf-token['"][^>]+content=['"]([^'"]*)['"]/i)
-    || html.match(/csrfToken\s*[:=]\s*['"]([^'"]+)['"]/i) || [])[1] || '';
-  const cookie = response.headers.get('set-cookie') || '';
+  const csrf = csrfToken(html);
   const types = [lang === 'en' ? 'en' : 'tr', lang === 'en' ? 'tr' : 'en', ''];
   let data;
   for (const type of types) {
-    const candidate = await fetchSourceCandidate(vId, type, `${SOURCE}/${id}`);
+    const candidate = await fetchSourceCandidate(vId, type, `${SOURCE}/${id}`, { cookie: pageCookie, csrf });
     if (candidate?.sources?.length) { data = candidate; break; }
   }
   if (!data?.sources?.length) throw new Error('Sunucu geçerli video kaynağı vermedi.');
@@ -176,7 +198,7 @@ async function resolvePlay(id, lang = 'tr', vid) {
   const embeddedTracks = [];
   for (const track of tracks) {
     try {
-      const subResponse = await fetch(absoluteUrl(track.file), { headers: { 'user-agent': UA, cookie } });
+      const subResponse = await fetch(absoluteUrl(track.file), { headers: { 'user-agent': UA, cookie: mergeCookies(pageCookie, data.__cookie) } });
       if (subResponse.ok) {
         let text = (await subResponse.text()).replace(/^\uFEFF/, '').replace(/\r\n/g, '\n');
         text = text.replace(/(\d{2}:\d{2}:\d{2}),(\d{3})/g, '$1.$2');
@@ -185,7 +207,7 @@ async function resolvePlay(id, lang = 'tr', vid) {
       }
     } catch (_) {}
   }
-  return { videoUrl, embeddedTracks, cookie: data.__cookie || cookie };
+  return { videoUrl, embeddedTracks, cookie: mergeCookies(pageCookie, data.__cookie), isHls: /\.m3u8(?:$|\?)/i.test(videoUrl) };
 }
 
 function encodeToken(value) {
@@ -198,49 +220,89 @@ function decodeToken(value) {
   return JSON.parse(decodeURIComponent(escape(atob(padded))));
 }
 
-function playerHtml(videoUrl, tracks) {
+function playerHtml(videoUrl, tracks, isHls) {
   const source = JSON.stringify(videoUrl);
   const embedded = JSON.stringify(tracks);
+  const hlsSource = JSON.stringify(Boolean(isHls));
   return `<!doctype html>
 <html lang="tr"><head><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"><title>İnadına TV Player</title>
 <link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css">
 <style>html,body{margin:0;background:#000;width:100%;height:100%;height:100dvh;overflow:hidden}.plyr{width:100%;height:100%;--plyr-color-main:#e50914}video{width:100%;height:100%;object-fit:contain!important;transition:object-fit .3s}#resizeBtn{position:absolute;top:20px;left:20px;z-index:10000;background:rgba(229,9,20,.9);color:#fff;border:1px solid rgba(255,255,255,.3);border-radius:8px;padding:8px 15px;font:700 13px Arial;cursor:pointer;backdrop-filter:blur(5px);transition:opacity .4s,transform .3s}#resizeBtn:hover{background:#e50914;transform:scale(1.05)}.plyr--hide-controls #resizeBtn,.force-hide{opacity:0!important;pointer-events:none!important}@media(max-width:600px){#resizeBtn{top:15px;left:15px;font-size:11px;padding:6px 10px}}</style></head>
 <body><button id="resizeBtn" type="button"><span>⛶</span> Ekran: Orijinal</button><video id="player" playsinline controls crossorigin="anonymous"></video>
 <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script><script src="https://cdn.plyr.io/3.7.8/plyr.polyfilled.js"></script>
-<script>document.addEventListener('DOMContentLoaded',function(){var v=document.querySelector('#player'),btn=document.querySelector('#resizeBtn'),tracks=${embedded};tracks.forEach(function(t,i){var b=new Blob([decodeURIComponent(t.data)],{type:'text/vtt'}),x=document.createElement('track');x.kind='captions';x.label=t.label;x.srclang='tr';x.src=URL.createObjectURL(b);x.default=i===0;v.appendChild(x)});var s=${source},fitModes=['contain','cover','fill'],fitNames=['Orijinal','Kırpıp Doldur','Esnet'],fit=0,hideTimer;btn.onclick=function(){fit=(fit+1)%fitModes.length;v.style.setProperty('object-fit',fitModes[fit],'important');btn.innerHTML='<span>⛶</span> Ekran: '+fitNames[fit];clearTimeout(hideTimer);hideTimer=setTimeout(function(){btn.classList.add('force-hide')},1500)};document.addEventListener('click',function(e){if(e.target!==btn&&!btn.contains(e.target))btn.classList.remove('force-hide')});var opts={captions:{active:true,language:'tr',update:true},seekTime:10};function setup(player){var first=true;player.on('play',function(){if(first&&!player.fullscreen.active){player.fullscreen.enter().catch(function(){});first=false}});player.on('enterfullscreen',function(){if(screen.orientation&&screen.orientation.lock)screen.orientation.lock('landscape').catch(function(){})});player.on('exitfullscreen',function(){if(screen.orientation&&screen.orientation.unlock)screen.orientation.unlock()})}function fail(){var box=document.createElement('div');box.style='position:fixed;inset:0;display:grid;place-items:center;background:#000;color:#fff;font:600 16px Arial;text-align:center;padding:24px;z-index:10001';box.textContent='Video kaynağı şu anda açılamıyor. Lütfen birkaç dakika sonra tekrar deneyin.';document.body.appendChild(box)}if(Hls.isSupported()&&s.indexOf('.m3u8')!==-1){var h=new Hls();h.loadSource(s);h.attachMedia(v);h.on(Hls.Events.MANIFEST_PARSED,function(){setup(new Plyr(v,opts))});h.on(Hls.Events.ERROR,function(_,d){if(d.fatal)fail()})}else{v.src=s;v.addEventListener('error',fail);setup(new Plyr(v,opts))}})</script></body></html>`;
+<script>document.addEventListener('DOMContentLoaded',function(){var v=document.querySelector('#player'),btn=document.querySelector('#resizeBtn'),tracks=${embedded};tracks.forEach(function(t,i){var b=new Blob([decodeURIComponent(t.data)],{type:'text/vtt'}),x=document.createElement('track');x.kind='captions';x.label=t.label;x.srclang='tr';x.src=URL.createObjectURL(b);x.default=i===0;v.appendChild(x)});var s=${source},isHls=${hlsSource},fitModes=['contain','cover','fill'],fitNames=['Orijinal','Kırpıp Doldur','Esnet'],fit=0,hideTimer;btn.onclick=function(){fit=(fit+1)%fitModes.length;v.style.setProperty('object-fit',fitModes[fit],'important');btn.innerHTML='<span>⛶</span> Ekran: '+fitNames[fit];clearTimeout(hideTimer);hideTimer=setTimeout(function(){btn.classList.add('force-hide')},1500)};document.addEventListener('click',function(e){if(e.target!==btn&&!btn.contains(e.target))btn.classList.remove('force-hide')});var opts={captions:{active:true,language:'tr',update:true},seekTime:10};function setup(player){var first=true;player.on('play',function(){if(first&&!player.fullscreen.active){player.fullscreen.enter().catch(function(){});first=false}});player.on('enterfullscreen',function(){if(screen.orientation&&screen.orientation.lock)screen.orientation.lock('landscape').catch(function(){})});player.on('exitfullscreen',function(){if(screen.orientation&&screen.orientation.unlock)screen.orientation.unlock()})}function fail(){var box=document.createElement('div');box.style='position:fixed;inset:0;display:grid;place-items:center;background:#000;color:#fff;font:600 16px Arial;text-align:center;padding:24px;z-index:10001';box.textContent='Video kaynağı şu anda açılamıyor. Lütfen birkaç dakika sonra tekrar deneyin.';document.body.appendChild(box)}if(isHls&&Hls.isSupported()){var h=new Hls();h.loadSource(s);h.attachMedia(v);h.on(Hls.Events.MANIFEST_PARSED,function(){setup(new Plyr(v,opts))});h.on(Hls.Events.ERROR,function(_,d){if(d.fatal)fail()})}else{v.src=s;v.addEventListener('error',fail);setup(new Plyr(v,opts))}})</script></body></html>`;
 }
 
 async function play(id, lang, vid) {
   try {
     const result = await resolvePlay(id, lang, vid);
     const streamUrl = `/api/stream?token=${encodeURIComponent(encodeToken({ url: result.videoUrl, cookie: result.cookie }))}`;
-    return new Response(playerHtml(streamUrl, result.embeddedTracks), { headers: cors({ 'Content-Type': 'text/html; charset=utf-8' }) });
+    return new Response(playerHtml(streamUrl, result.embeddedTracks, result.isHls), { headers: cors({ 'Content-Type': 'text/html; charset=utf-8' }) });
   } catch (error) {
     return new Response(`Oynatıcı kaynağı alınamadı: ${error.message}`, { status: 404, headers: cors({ 'Content-Type': 'text/plain; charset=utf-8' }) });
   }
 }
 
-async function stream(rawToken) {
+function streamUrlFor(url, cookie) {
+  return `/api/stream?token=${encodeURIComponent(encodeToken({ url, cookie }))}`;
+}
+
+function safeStreamTarget(value) {
+  const target = new URL(value);
+  const host = target.hostname.toLowerCase().replace(/^\[|\]$/g, '');
+  if (!['http:', 'https:'].includes(target.protocol) || target.username || target.password) throw new Error('Geçersiz akış adresi.');
+  if (host === 'localhost' || host.endsWith('.localhost') || host.endsWith('.local') || host.endsWith('.internal')) throw new Error('Yerel adreslere akış izni yok.');
+  const ipv4 = host.split('.').map(Number);
+  if (ipv4.length === 4 && ipv4.every((part) => Number.isInteger(part) && part >= 0 && part <= 255)) {
+    if (ipv4[0] === 10 || ipv4[0] === 127 || ipv4[0] === 0 || ipv4[0] === 169 && ipv4[1] === 254 || ipv4[0] === 192 && ipv4[1] === 168 || ipv4[0] === 172 && ipv4[1] >= 16 && ipv4[1] <= 31) throw new Error('Yerel adreslere akış izni yok.');
+  }
+  if (host === '::1' || host.startsWith('fc') || host.startsWith('fd') || host.startsWith('fe80:') || host.startsWith('::ffff:127.') || host.startsWith('::ffff:10.') || host.startsWith('::ffff:192.168.')) throw new Error('Yerel adreslere akış izni yok.');
+  return target;
+}
+
+function rewriteManifest(manifest, target, cookie) {
+  const rewrite = (value) => {
+    if (!value || /^(?:data|skd):/i.test(value)) return value;
+    return streamUrlFor(new URL(value, target).toString(), cookie);
+  };
+  return manifest
+    .replace(/(\bURI\s*=\s*)(["'])(.*?)\2/gi, (match, prefix, quote, value) => `${prefix}${quote}${rewrite(value)}${quote}`)
+    .split(/\r?\n/)
+    .map((line) => {
+      const item = line.trim();
+      return !item || item.startsWith('#') ? line : rewrite(item);
+    }).join('\n');
+}
+
+async function stream(request, rawToken) {
   try {
     const data = decodeToken(rawToken);
     const target = new URL(data.url);
-    const response = await fetch(target, { headers: { 'user-agent': UA, cookie: data.cookie || '', referer: `${SOURCE}/` } });
+    const safeTarget = safeStreamTarget(target.toString());
+    const requestHeaders = new Headers({ 'user-agent': UA, referer: `${SOURCE}/` });
+    if (data.cookie) requestHeaders.set('cookie', data.cookie);
+    for (const name of ['range', 'if-range']) {
+      const value = request.headers.get(name);
+      if (value) requestHeaders.set(name, value);
+    }
+    const response = await fetch(safeTarget, { method: request.method === 'HEAD' ? 'HEAD' : 'GET', headers: requestHeaders });
     const contentType = response.headers.get('content-type') || '';
-    const bytes = await response.arrayBuffer();
-    const text = new TextDecoder().decode(bytes);
-    if (!response.ok || /^\s*404\s*$/i.test(text)) {
-      return new Response('Video kaynağı şu anda kullanılamıyor.', { status: 404, headers: cors({ 'Content-Type': 'text/plain; charset=utf-8' }) });
+    const responseHeaders = {};
+    for (const name of ['content-length', 'content-range', 'accept-ranges', 'etag', 'last-modified']) {
+      const value = response.headers.get(name);
+      if (value) responseHeaders[name] = value;
     }
-    if (target.pathname.endsWith('.m3u8') || text.trimStart().startsWith('#EXTM3U')) {
-      const rewritten = text.split(/\r?\n/).map((line) => {
-        const item = line.trim();
-        if (!item || item.startsWith('#')) return line;
-        const next = new URL(item, target).toString();
-        return `/api/stream?token=${encodeURIComponent(encodeToken({ url: next, cookie: data.cookie || '' }))}`;
-      }).join('\n');
-      return new Response(rewritten, { status: response.status, headers: cors({ 'Content-Type': 'application/vnd.apple.mpegurl; charset=utf-8', 'Cache-Control': 'no-store' }) });
+    if (!response.ok) {
+      return new Response(response.body, { status: response.status, headers: cors({ ...responseHeaders, 'Content-Type': contentType || 'application/octet-stream' }) });
     }
-    return new Response(bytes, { status: response.status, headers: cors({ 'Content-Type': contentType || 'application/octet-stream', 'Cache-Control': 'no-store' }) });
+    const isManifest = /\.m3u8(?:$|\?)/i.test(safeTarget.href) || /mpegurl/i.test(contentType);
+    if (isManifest) {
+      const manifest = await response.text();
+      if (!manifest.trimStart().startsWith('#EXTM3U')) throw new Error('HLS oynatma listesi geçersiz.');
+      const rewritten = rewriteManifest(manifest, safeTarget, data.cookie || '');
+      return new Response(rewritten, { status: response.status, headers: cors({ ...responseHeaders, 'Content-Type': 'application/vnd.apple.mpegurl; charset=utf-8', 'Cache-Control': 'no-store' }) });
+    }
+    return new Response(response.body, { status: response.status, headers: cors({ ...responseHeaders, 'Content-Type': contentType || 'application/octet-stream', 'Cache-Control': 'no-store' }) });
   } catch (error) {
     return new Response(`Stream proxy error: ${error.message}`, { status: 502, headers: cors({ 'Content-Type': 'text/plain; charset=utf-8' }) });
   }
@@ -263,7 +325,7 @@ export default {
     try {
       if (path === '/api/info') return await info(url.searchParams.get('id'), url.searchParams.get('vid'));
       if (path === '/api/play') return await play(url.searchParams.get('id'), url.searchParams.get('lang'), url.searchParams.get('vid'));
-      if (path === '/api/stream') return await stream(url.searchParams.get('token') || '');
+      if (path === '/api/stream') return await stream(request, url.searchParams.get('token') || '');
       if (path === '/api/sub') return await subtitle(url.searchParams.get('url'));
       if (env.ASSETS) return env.ASSETS.fetch(request);
       return json({ ok: true, service: 'inadina-tv-player-api' });

@@ -22,7 +22,7 @@ class TestResponse {
   }
 }
 
-test('Vercel play page detects extensionless imgsapi HLS and points at its own stream route', async () => {
+test('Vercel player detects extensionless imgsapi HLS and embeds alternative same-origin stream candidates', async () => {
   const originalFetch = globalThis.fetch;
   globalThis.fetch = async (input) => {
     const url = new URL(input);
@@ -32,7 +32,10 @@ test('Vercel play page detects extensionless imgsapi HLS and points at its own s
       });
     }
     if (url.pathname === '/get-source') {
-      return Response.json({ sources: [{ src: '//imgsapi.pro/path/master?token=xyz', type: 'hls' }] }, {
+      return Response.json({ sources: [
+        { src: 'https://backup.example/video.mp4', type: 'video/mp4' },
+        { src: '//imgsapi.pro/path/master?token=xyz', type: 'hls' },
+      ] }, {
         headers: { 'set-cookie': 'stream_session=two; Path=/; HttpOnly' },
       });
     }
@@ -44,12 +47,22 @@ test('Vercel play page detects extensionless imgsapi HLS and points at its own s
     assert.equal(res.statusCode, 200);
     assert.match(res.body, /const isHls = true/);
     assert.match(res.body, /const source = "\/api\/stream\?token=/);
+
     const match = res.body.match(/const source = "\/api\/stream\?token=([^\"]+)"/);
     assert.ok(match, 'expected a Vercel same-origin stream URL');
-    const encoded = decodeURIComponent(match[1]);
-    const token = JSON.parse(Buffer.from(encoded, 'base64url').toString('utf8'));
+    const token = JSON.parse(Buffer.from(decodeURIComponent(match[1]), 'base64url').toString('utf8'));
     assert.equal(token.url, 'https://imgsapi.pro/path/master.m3u8?token=xyz');
     assert.equal(token.cookie, 'page_session=one; stream_session=two');
+    assert.equal(token.referer, 'https://www.filmmodu.one/sample-film-izle');
+
+    const candidatesMatch = res.body.match(/const playbackSources = (\[[^\n]*\]);/);
+    assert.ok(candidatesMatch, 'expected the page to embed all playable source candidates');
+    const candidates = JSON.parse(candidatesMatch[1]);
+    assert.equal(candidates.length, 2);
+    assert.equal(candidates[0].isHls, true);
+    const alternateToken = new URL(candidates[1].url, 'https://film-sitem-theta.vercel.app').searchParams.get('token');
+    assert.equal(JSON.parse(Buffer.from(alternateToken, 'base64url').toString('utf8')).url, 'https://backup.example/video.mp4');
+    assert.match(res.body, /function tryNextSource/);
   } finally {
     globalThis.fetch = originalFetch;
   }

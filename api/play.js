@@ -25,8 +25,8 @@ function normalizeSource(value) {
   return url;
 }
 
-function streamToken(url, cookie) {
-  return Buffer.from(JSON.stringify({ url, cookie: cookie || '' }), 'utf8').toString('base64url');
+function streamToken(url, cookie, referer) {
+  return Buffer.from(JSON.stringify({ url, cookie: cookie || '', referer: referer || `${SOURCE}/` }), 'utf8').toString('base64url');
 }
 
 export default async function handler(req, res) {
@@ -70,10 +70,30 @@ export default async function handler(req, res) {
     if (!data || !data.sources || data.sources.length === 0) return res.status(404).send("Sunucu kaynak vermedi.");
     const usableSources = data.sources.filter(s => s && (s.src || s.file || s.url));
     if (!usableSources.length) return res.status(404).send("Sunucu geçerli video kaynağı vermedi.");
-    const selectedSource = usableSources[usableSources.length - 1];
-    let videoUrl = normalizeSource(selectedSource.src || selectedSource.file || selectedSource.url);
-    const isHls = /\.m3u8(?:$|\?)/i.test(videoUrl) || /(?:hls|mpegurl|m3u8)/i.test(`${selectedSource.type || ''} ${selectedSource.mimeType || ''}`);
-    const streamUrl = `/api/stream?token=${encodeURIComponent(streamToken(videoUrl, mergeCookies(cookies, data.__cookie)))}`;
+    const streamCookie = mergeCookies(cookies, data.__cookie);
+    const sourceReferer = `${SOURCE}/${id}`;
+    const playbackSources = [];
+    const seenSources = new Set();
+    for (const candidate of [...usableSources].reverse()) {
+        const videoUrl = normalizeSource(candidate.src || candidate.file || candidate.url);
+        const sourceType = `${candidate.type || ''} ${candidate.mimeType || ''}`;
+        const isHls = /\.m3u8(?:$|\?)/i.test(videoUrl) || /(?:hls|mpegurl|m3u8)/i.test(sourceType);
+        const isVideo = isHls || /\.(?:mp4|m4v|webm|ogv|mpd)(?:$|\?)/i.test(videoUrl) || /(?:video\/(?:mp4|webm|ogg|mp2t)|dash|\bmp4\b|\bwebm\b)/i.test(sourceType);
+        if (!isVideo || seenSources.has(videoUrl)) continue;
+        seenSources.add(videoUrl);
+        playbackSources.push({
+            url: `/api/stream?token=${encodeURIComponent(streamToken(videoUrl, streamCookie, sourceReferer))}`,
+            isHls,
+        });
+    }
+    if (!playbackSources.length) {
+        const selectedSource = usableSources[usableSources.length - 1];
+        const videoUrl = normalizeSource(selectedSource.src || selectedSource.file || selectedSource.url);
+        const isHls = /\.m3u8(?:$|\?)/i.test(videoUrl) || /(?:hls|mpegurl|m3u8)/i.test(`${selectedSource.type || ''} ${selectedSource.mimeType || ''}`);
+        playbackSources.push({ url: `/api/stream?token=${encodeURIComponent(streamToken(videoUrl, streamCookie, sourceReferer))}`, isHls });
+    }
+    const streamUrl = playbackSources[0].url;
+    const isHls = playbackSources[0].isHls;
 
     let rawSubtitles = [];
     
@@ -225,26 +245,83 @@ export default async function handler(req, res) {
 
                 const source = ${JSON.stringify(streamUrl)};
                 const isHls = ${JSON.stringify(isHls)};
+                const playbackSources = ${JSON.stringify(playbackSources)};
                 const opts = {
                     captions: { active: true, language: 'tr', update: true },
                     seekTime: 10
                 };
 
                 let playerInstance;
+                let activeHls;
+                let activeSourceIndex = -1;
+                let fallbackPending = false;
+                let activeHlsManaged = false;
+                let failureShown = false;
 
-                if (isHls && Hls.isSupported()) {
-                    const hls = new Hls();
-                    hls.loadSource(source);
-                    hls.attachMedia(video);
-                    hls.on(Hls.Events.MANIFEST_PARSED, () => {
-                        playerInstance = new Plyr(video, opts);
-                        setupCinemaMode(playerInstance);
-                    });
-                } else {
-                    video.src = source;
+                function initializePlayer() {
+                    if (playerInstance) return;
                     playerInstance = new Plyr(video, opts);
                     setupCinemaMode(playerInstance);
                 }
+
+                function tryNextSource(failedIndex) {
+                    if (failedIndex !== activeSourceIndex || fallbackPending) return;
+                    if (failedIndex + 1 >= playbackSources.length) {
+                        if (!failureShown) {
+                            failureShown = true;
+                            const notice = document.createElement('div');
+                            notice.textContent = 'Bu film şu anda yayın sağlayıcısından alınamıyor. Lütfen daha sonra tekrar deneyin.';
+                            notice.style.cssText = 'position:fixed;z-index:20000;left:50%;top:50%;transform:translate(-50%,-50%);max-width:85%;padding:16px 20px;border-radius:8px;background:rgba(20,20,20,.94);color:#fff;font:16px Arial,sans-serif;text-align:center;';
+                            document.body.appendChild(notice);
+                        }
+                        return;
+                    }
+                    fallbackPending = true;
+                    setTimeout(() => {
+                        if (activeSourceIndex === failedIndex) loadSource(failedIndex + 1);
+                    }, 250);
+                }
+
+                function loadSource(index) {
+                    if (index >= playbackSources.length) return;
+                    activeSourceIndex = index;
+                    fallbackPending = false;
+                    activeHlsManaged = false;
+                    if (activeHls) {
+                        activeHls.destroy();
+                        activeHls = null;
+                    }
+                    video.pause();
+                    video.removeAttribute('src');
+                    video.load();
+
+                    const candidate = playbackSources[index];
+                    if (candidate.isHls && typeof Hls !== 'undefined' && Hls.isSupported()) {
+                        activeHlsManaged = true;
+                        const hls = new Hls();
+                        activeHls = hls;
+                        let sourceErrors = 0;
+                        hls.on(Hls.Events.ERROR, (_event, data) => {
+                            if (index !== activeSourceIndex) return;
+                            sourceErrors += 1;
+                            if (data.fatal || sourceErrors >= 3) tryNextSource(index);
+                        });
+                        hls.on(Hls.Events.MANIFEST_PARSED, () => {
+                            if (index === activeSourceIndex) initializePlayer();
+                        });
+                        hls.loadSource(candidate.url);
+                        hls.attachMedia(video);
+                    } else {
+                        video.src = candidate.url;
+                        video.load();
+                        initializePlayer();
+                    }
+                }
+
+                video.addEventListener('error', () => {
+                    if (!activeHlsManaged) tryNextSource(activeSourceIndex);
+                });
+                loadSource(0);
 
                 function setupCinemaMode(plyrPlayer) {
                     // YENİ: Butonu Plyr oynatıcısının içine taşı ki tam ekranda da kaybolmasın

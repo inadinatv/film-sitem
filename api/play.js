@@ -190,7 +190,7 @@ export default async function handler(req, res) {
     </head>
     <body>
         <button id="resizeBtn" onclick="toggleFit()"><i class="fas fa-expand"></i> Ekran: Orijinal</button>
-        <video id="player" playsinline controls crossorigin="anonymous"></video>
+        <video id="player" playsinline controls></video>
 
         <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
         <script src="https://cdn.plyr.io/3.7.8/plyr.polyfilled.js"></script>

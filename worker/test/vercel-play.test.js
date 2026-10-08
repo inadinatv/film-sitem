@@ -60,8 +60,11 @@ test('Vercel player detects extensionless imgsapi HLS and embeds alternative sam
     const candidates = JSON.parse(candidatesMatch[1]);
     assert.equal(candidates.length, 2);
     assert.equal(candidates[0].isHls, true);
+    assert.equal(candidates[0].directUrl, 'https://imgsapi.pro/path/master.m3u8?token=xyz');
     const alternateToken = new URL(candidates[1].url, 'https://film-sitem-theta.vercel.app').searchParams.get('token');
     assert.equal(JSON.parse(Buffer.from(alternateToken, 'base64url').toString('utf8')).url, 'https://backup.example/video.mp4');
+    assert.equal(candidates[1].directUrl, 'https://backup.example/video.mp4');
+    assert.match(res.body, /video\.canPlayType\('application\/vnd\.apple\.mpegurl'\)/);
     assert.match(res.body, /function tryNextSource/);
   } finally {
     globalThis.fetch = originalFetch;

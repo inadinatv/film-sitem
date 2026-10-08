@@ -83,6 +83,7 @@ export default async function handler(req, res) {
         seenSources.add(videoUrl);
         playbackSources.push({
             url: `/api/stream?token=${encodeURIComponent(streamToken(videoUrl, streamCookie, sourceReferer))}`,
+            directUrl: videoUrl,
             isHls,
         });
     }
@@ -90,7 +91,7 @@ export default async function handler(req, res) {
         const selectedSource = usableSources[usableSources.length - 1];
         const videoUrl = normalizeSource(selectedSource.src || selectedSource.file || selectedSource.url);
         const isHls = /\.m3u8(?:$|\?)/i.test(videoUrl) || /(?:hls|mpegurl|m3u8)/i.test(`${selectedSource.type || ''} ${selectedSource.mimeType || ''}`);
-        playbackSources.push({ url: `/api/stream?token=${encodeURIComponent(streamToken(videoUrl, streamCookie, sourceReferer))}`, isHls });
+        playbackSources.push({ url: `/api/stream?token=${encodeURIComponent(streamToken(videoUrl, streamCookie, sourceReferer))}`, directUrl: videoUrl, isHls });
     }
     const streamUrl = playbackSources[0].url;
     const isHls = playbackSources[0].isHls;
@@ -256,6 +257,7 @@ export default async function handler(req, res) {
                 let activeSourceIndex = -1;
                 let fallbackPending = false;
                 let activeHlsManaged = false;
+                let activeTransport = 'direct';
                 let failureShown = false;
 
                 function initializePlayer() {
@@ -266,6 +268,14 @@ export default async function handler(req, res) {
 
                 function tryNextSource(failedIndex) {
                     if (failedIndex !== activeSourceIndex || fallbackPending) return;
+                    const current = playbackSources[failedIndex];
+                    if (activeTransport === 'direct' && current.directUrl && current.url !== current.directUrl) {
+                        fallbackPending = true;
+                        setTimeout(() => {
+                            if (activeSourceIndex === failedIndex) loadSource(failedIndex, 'proxy');
+                        }, 250);
+                        return;
+                    }
                     if (failedIndex + 1 >= playbackSources.length) {
                         if (!failureShown) {
                             failureShown = true;
@@ -278,15 +288,16 @@ export default async function handler(req, res) {
                     }
                     fallbackPending = true;
                     setTimeout(() => {
-                        if (activeSourceIndex === failedIndex) loadSource(failedIndex + 1);
+                        if (activeSourceIndex === failedIndex) loadSource(failedIndex + 1, 'direct');
                     }, 250);
                 }
 
-                function loadSource(index) {
+                function loadSource(index, transport = 'direct') {
                     if (index >= playbackSources.length) return;
                     activeSourceIndex = index;
                     fallbackPending = false;
                     activeHlsManaged = false;
+                    activeTransport = transport;
                     if (activeHls) {
                         activeHls.destroy();
                         activeHls = null;
@@ -296,23 +307,28 @@ export default async function handler(req, res) {
                     video.load();
 
                     const candidate = playbackSources[index];
-                    if (candidate.isHls && typeof Hls !== 'undefined' && Hls.isSupported()) {
+                    const targetUrl = transport === 'proxy' ? candidate.url : (candidate.directUrl || candidate.url);
+                    if (candidate.isHls && video.canPlayType('application/vnd.apple.mpegurl')) {
+                        video.src = targetUrl;
+                        video.load();
+                        initializePlayer();
+                    } else if (candidate.isHls && typeof Hls !== 'undefined' && Hls.isSupported()) {
                         activeHlsManaged = true;
                         const hls = new Hls();
                         activeHls = hls;
                         let sourceErrors = 0;
                         hls.on(Hls.Events.ERROR, (_event, data) => {
-                            if (index !== activeSourceIndex) return;
+                            if (activeHls !== hls || index !== activeSourceIndex) return;
                             sourceErrors += 1;
                             if (data.fatal || sourceErrors >= 3) tryNextSource(index);
                         });
                         hls.on(Hls.Events.MANIFEST_PARSED, () => {
-                            if (index === activeSourceIndex) initializePlayer();
+                            if (activeHls === hls && index === activeSourceIndex) initializePlayer();
                         });
-                        hls.loadSource(candidate.url);
+                        hls.loadSource(targetUrl);
                         hls.attachMedia(video);
                     } else {
-                        video.src = candidate.url;
+                        video.src = targetUrl;
                         video.load();
                         initializePlayer();
                     }

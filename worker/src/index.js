@@ -139,10 +139,15 @@ async function info(id, vid) {
 
 function absoluteUrl(value) {
   if (!value) return '';
-  if (value.startsWith('//')) return `https:${value}`;
-  if (value.startsWith('/')) return `${SOURCE}${value}`;
-  if (value.includes('imgsapi.pro/') && !/\.m3u8(?:\?|$)/i.test(value)) return `${value}.m3u8`;
-  return value;
+  let url = value.startsWith('//') ? `https:${value}` : value.startsWith('/') ? `${SOURCE}${value}` : value;
+  try {
+    const parsed = new URL(url);
+    if ((parsed.hostname === 'imgsapi.pro' || parsed.hostname.endsWith('.imgsapi.pro')) && !/\.m3u8$/i.test(parsed.pathname)) {
+      parsed.pathname += '.m3u8';
+    }
+    url = parsed.toString();
+  } catch (_) {}
+  return url;
 }
 
 async function fetchSourceCandidate(vid, type, referer, session = {}) {

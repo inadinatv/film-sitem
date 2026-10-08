@@ -1,3 +1,34 @@
+const SOURCE = 'https://www.filmmodu.one';
+
+function cookieHeader(headers) {
+  const values = typeof headers.getSetCookie === 'function' ? headers.getSetCookie() : [headers.get('set-cookie') || ''];
+  return values.map((value) => value.split(';', 1)[0].trim()).filter(Boolean).join('; ');
+}
+
+function mergeCookies(...values) {
+  const cookies = new Map();
+  values.filter(Boolean).join(';').split(';').forEach((part) => {
+    const separator = part.indexOf('=');
+    if (separator > 0) cookies.set(part.slice(0, separator).trim(), part.slice(separator + 1).trim());
+  });
+  return [...cookies].map(([name, value]) => `${name}=${value}`).join('; ');
+}
+
+function normalizeSource(value) {
+  if (!value) return '';
+  let url = value.startsWith('//') ? `https:${value}` : value.startsWith('/') ? `${SOURCE}${value}` : value;
+  try {
+    const parsed = new URL(url);
+    if ((parsed.hostname === 'imgsapi.pro' || parsed.hostname.endsWith('.imgsapi.pro')) && !/\.m3u8$/i.test(parsed.pathname)) parsed.pathname += '.m3u8';
+    url = parsed.toString();
+  } catch (_) {}
+  return url;
+}
+
+function streamToken(url, cookie) {
+  return Buffer.from(JSON.stringify({ url, cookie: cookie || '' }), 'utf8').toString('base64url');
+}
+
 export default async function handler(req, res) {
   const { id, vid, lang } = req.query;
 
@@ -5,9 +36,9 @@ export default async function handler(req, res) {
 
   try {
     const ua = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"; 
-    const pageReq = await fetch(`https://www.filmmodu.one/${id}`, { headers: { "user-agent": ua, "referer": "https://www.filmmodu.one/" } });
+    const pageReq = await fetch(`${SOURCE}/${id}`, { headers: { "user-agent": ua, "referer": `${SOURCE}/` } });
     const html = await pageReq.text();
-    const cookies = pageReq.headers.get('set-cookie') || ""; 
+    const cookies = cookieHeader(pageReq.headers);
     
     const vId = vid || (html.match(/videoId\s*(?:=|:)\s*['"]([^'"]+)['"]/i) || html.match(/data-(?:movie-id|video-id|id)=['"]([^'"]+)['"]/i) || [])[1];
     const csrf = (html.match(/<meta[^>]+name=['"]csrf-token['"][^>]+content=['"]([^'"]*)['"]/i) || html.match(/csrfToken\s*[:=]\s*['"]([^'"]+)['"]/i) || [])[1] || "";
@@ -20,16 +51,17 @@ export default async function handler(req, res) {
     let data = null;
     
     for (let t of typesToTry) {
-        let url = `https://www.filmmodu.one/get-source?movie_id=${vId}`;
+        let url = `${SOURCE}/get-source?movie_id=${encodeURIComponent(vId)}`;
         if (t) url += `&type=${t}`;
         const sourceReq = await fetch(url, {
-          headers: { ...(csrf ? { "x-csrf-token": csrf } : {}), "accept": "application/json, text/plain, */*", "x-requested-with": "XMLHttpRequest", "cookie": cookies, "user-agent": ua, "referer": `https://www.filmmodu.one/${id}` }
+          headers: { ...(csrf ? { "x-csrf-token": csrf } : {}), "accept": "application/json, text/plain, */*", "x-requested-with": "XMLHttpRequest", ...(cookies ? { "cookie": cookies } : {}), "user-agent": ua, "referer": `${SOURCE}/${id}` }
         });
+        const sourceCookies = cookieHeader(sourceReq.headers);
         try {
             const tempData = await sourceReq.json();
             const sources = tempData.sources || tempData.data?.sources || (Array.isArray(tempData.data) ? tempData.data : []);
             if (sources.length > 0) {
-                data = { ...tempData, sources };
+                data = { ...tempData, sources, __cookie: mergeCookies(cookies, sourceCookies) };
                 break; 
             }
         } catch(e) {}
@@ -38,8 +70,10 @@ export default async function handler(req, res) {
     if (!data || !data.sources || data.sources.length === 0) return res.status(404).send("Sunucu kaynak vermedi.");
     const usableSources = data.sources.filter(s => s && (s.src || s.file || s.url));
     if (!usableSources.length) return res.status(404).send("Sunucu geçerli video kaynağı vermedi.");
-    let videoUrl = usableSources[usableSources.length - 1].src || usableSources[usableSources.length - 1].file || usableSources[usableSources.length - 1].url;
-    if (videoUrl && videoUrl.startsWith('//')) videoUrl = 'https:' + videoUrl;
+    const selectedSource = usableSources[usableSources.length - 1];
+    let videoUrl = normalizeSource(selectedSource.src || selectedSource.file || selectedSource.url);
+    const isHls = /\.m3u8(?:$|\?)/i.test(videoUrl) || /(?:hls|mpegurl|m3u8)/i.test(`${selectedSource.type || ''} ${selectedSource.mimeType || ''}`);
+    const streamUrl = `/api/stream?token=${encodeURIComponent(streamToken(videoUrl, mergeCookies(cookies, data.__cookie)))}`;
 
     let rawSubtitles = [];
     
@@ -58,7 +92,7 @@ export default async function handler(req, res) {
             else if (!trackFile.startsWith('http')) trackFile = 'https://www.filmmodu.one' + trackFile;
 
             try {
-                const subRes = await fetch(trackFile, { headers: { "cookie": cookies, "user-agent": ua } });
+                const subRes = await fetch(trackFile, { headers: { ...(mergeCookies(cookies, data.__cookie) ? { "cookie": mergeCookies(cookies, data.__cookie) } : {}), "user-agent": ua } });
                 if (subRes.ok) {
                     let text = await subRes.text();
                     text = text.replace(/^\uFEFF/, '');
@@ -189,7 +223,8 @@ export default async function handler(req, res) {
                     video.appendChild(track);
                 });
 
-                const source = ${JSON.stringify(videoUrl)};
+                const source = ${JSON.stringify(streamUrl)};
+                const isHls = ${JSON.stringify(isHls)};
                 const opts = {
                     captions: { active: true, language: 'tr', update: true },
                     seekTime: 10
@@ -197,7 +232,7 @@ export default async function handler(req, res) {
 
                 let playerInstance;
 
-                if (Hls.isSupported() && source.includes('.m3u8')) {
+                if (isHls && Hls.isSupported()) {
                     const hls = new Hls();
                     hls.loadSource(source);
                     hls.attachMedia(video);
